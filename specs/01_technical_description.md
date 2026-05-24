@@ -332,7 +332,7 @@ Other useful configuration settings to consider:
 
 ## 10. Extension Points and Future Enhancements
 
-### 9.1 Potential Features
+### 10.1 Potential Features
 - **Error Feedback**: Display Sonic Pi errors in VSCode
 - **Code Templates**: Snippets for common Sonic Pi patterns
 - **Live Visualization**: Real-time audio visualization
@@ -340,7 +340,7 @@ Other useful configuration settings to consider:
 - **Multiple Files**: Support importing/using multiple `.live.py` files
 - **Configuration**: Customizable keybindings, server port, Python path
 
-### 9.2 Integration Opportunities
+### 10.2 Integration Opportunities
 - **Git Integration**: Version control for live coding sessions
 - **Collaboration**: Multi-user live coding sessions
 - **Package Management**: Python package dependencies for audio libraries
