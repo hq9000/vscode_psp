@@ -274,34 +274,23 @@ The extension should provide configuration options through VSCode settings to al
   - Linux: `/usr/bin/sonic-pi` or `/opt/sonic-pi`
 - **Usage**: The extension uses this path to find the Sonic Pi server binary and related resources
 
-### 8.2 Ruby Interpreter Location
-- **Setting**: `vscode-psp.rubyPath`
-- **Type**: String (file path)
-- **Description**: Specifies the path to the Ruby interpreter executable
-- **Purpose**: Some Sonic Pi operations may require direct Ruby execution
-- **Default**: System Ruby (found via PATH environment variable)
-- **Optional**: This setting is only needed if:
-  - The system Ruby is not in PATH
-  - A specific Ruby version is required
-  - Sonic Pi's bundled Ruby needs to be used explicitly
-- **Usage**: The extension may use this for:
-  - Validating generated Ruby syntax before sending to Sonic Pi
-  - Running Ruby-based utilities or helpers
-  - Debugging Ruby code generation
-
-### 8.3 Additional Configuration Options
+### 8.2 Additional Configuration Options
 Other useful configuration settings to consider:
 - **Python Virtual Environment**: Path to specific venv to use (if not using the active one)
 - **Output File Location**: Custom path for `last.rb` (default: workspace root)
 - **Auto-start Server**: Whether to automatically start Sonic Pi server on `.live.py` file open
 - **Server Port**: Custom OSC port if not using the default 4557
 - **Log Level**: Verbosity of extension logging for debugging
+- **Log Autoscroll**: Whether to automatically scroll the log output (default: true)
+- **Log Clear on Run**: Whether to clear the log when executing a run (default: true)
+- **Flash Background Color**: Background flash color when running code (default: `rgba(255,20,147,1.0)`)
+- **Flash Text Color**: Text flash color when running code (default: `rgba(255,255,255,1.0)`)
 
-### 8.4 Configuration Example
+
+### 8.3 Configuration Example
 ```json
 {
   "vscode-psp.sonicPiRootDirectory": "/Applications/Sonic Pi.app",
-  "vscode-psp.rubyPath": "/usr/local/bin/ruby",
   "vscode-psp.autoStartServer": true,
   "vscode-psp.outputFile": "${workspaceFolder}/last.rb",
   "vscode-psp.serverPort": 4557
@@ -340,12 +329,6 @@ Other useful configuration settings to consider:
 - **Multiple Files**: Support importing/using multiple `.live.py` files
 - **Configuration**: Customizable keybindings, server port, Python path
 
-### 10.2 Integration Opportunities
-- **Git Integration**: Version control for live coding sessions
-- **Collaboration**: Multi-user live coding sessions
-- **Package Management**: Python package dependencies for audio libraries
-- **MIDI Support**: Control external hardware synthesizers
-
 ## 11. Security and Error Handling
 
 ### 11.1 Security Considerations
@@ -376,7 +359,7 @@ Other useful configuration settings to consider:
 2. Install Sonic Pi on the system
 3. Install Python 3.8 or higher
 4. Set up a Python virtual environment with required library
-5. Configure extension settings (Sonic Pi path, Ruby path if needed)
+5. Configure extension settings (Sonic Pi path)
 6. Create a `.live.py` file
 7. Write sound generation code that outputs to `last.rb`
 8. Press `Alt+R` to hear results
