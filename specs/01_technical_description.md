@@ -171,7 +171,7 @@ The audio synthesis engine that produces sound:
 - **Build Tools**: npm/yarn, webpack (typical for VSCode extensions)
 
 ### 5.2 Python Environment
-- **Language**: Python 3.x
+- **Language**: Python 3.8 or higher
 - **Requirements**: 
   - Must be able to generate Ruby/Sonic Pi syntax
   - File I/O capabilities (write to `last.rb`)
@@ -205,13 +205,13 @@ The extension manages the Sonic Pi server lifecycle automatically:
   - Invalid Ruby syntax feedback
 
 ### 6.3 Reference Implementation
-The extension can reference the approach used in [vscode-sonic-pi](https://github.com/s00500/vscode-sonic-pi) for:
+The extension may reference the approach used in [vscode-sonic-pi](https://github.com/s00500/vscode-sonic-pi) for:
 - Process spawning and management
 - Communication protocol implementation
 - Error handling strategies
 - Configuration options
 
-**Note**: This reference is mentioned in the original agent brief as a potential source of implementation patterns. Developers should verify the repository is accessible and review its current state before adapting any approaches.
+**Note**: This reference is mentioned in the original agent brief as a potential source of implementation patterns. Developers should verify the repository is currently accessible and maintained, and review its current state before adapting any approaches.
 
 ## 7. Data Flow
 
@@ -311,7 +311,7 @@ File Close
 ### 11.2 For End Users
 1. Install VSCode PSP extension from marketplace
 2. Install Sonic Pi on the system
-3. Install Python 3.x
+3. Install Python 3.8 or higher
 4. Create a `.live.py` file
 5. Write sound generation code
 6. Press `Alt+R` to hear results
