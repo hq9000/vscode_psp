@@ -211,6 +211,8 @@ The extension can reference the approach used in [vscode-sonic-pi](https://githu
 - Error handling strategies
 - Configuration options
 
+**Note**: This reference is mentioned in the original agent brief as a potential source of implementation patterns. Developers should verify the repository is accessible and review its current state before adapting any approaches.
+
 ## 7. Data Flow
 
 ### 7.1 Code Execution Path
