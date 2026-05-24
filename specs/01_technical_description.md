@@ -126,28 +126,28 @@ The audio synthesis engine that produces sound:
 1. **User writes/modifies Python code** in the `.live.py` file
    - Full Pylance support: autocompletion, type checking, linting
    - Standard VSCode debugging and navigation features available
-   
+
 2. **User presses `Alt+R`** (Run command)
-   
+
 3. **Extension triggers Python execution**
    - Current file is executed by the Python interpreter
    - Python script generates Sonic Pi Ruby syntax
-   
+
 4. **Python writes output to `last.rb`**
    - File contains valid Sonic Pi/Ruby code
    - Represents the current sound definition
-   
+
 5. **Extension reads `last.rb`**
    - Captures the generated Ruby code
-   
+
 6. **Extension sends code to Sonic Pi server**
    - Communication via OSC (Open Sound Control) or UDP protocol
    - Server receives the Ruby instructions
-   
+
 7. **Sonic Pi processes and plays audio**
    - Synthesizes sound based on the instructions
    - Audio output is immediately audible
-   
+
 8. **User iterates**
    - Modify Python code
    - Press `Alt+R` again
@@ -176,7 +176,7 @@ The audio synthesis engine that produces sound:
 
 ### 5.2 Python Environment
 - **Language**: Python 3.8 or higher
-- **Requirements**: 
+- **Requirements**:
   - Must be able to generate Ruby/Sonic Pi syntax
   - File I/O capabilities (write to `last.rb`)
   - Compatible with Pylance/Python extension for VSCode
@@ -194,7 +194,7 @@ The extension manages the Sonic Pi server lifecycle with automatic start and man
 
 - **Start Trigger**: Opening any file with `.live.py` extension
 - **Stop Trigger**: User must explicitly invoke the "Stop Server" command
-- **Process Management**: 
+- **Process Management**:
   - Server runs as a child process or system daemon
   - Extension monitors server health
   - Automatic recovery on server crashes (optional)
@@ -204,7 +204,7 @@ The extension manages the Sonic Pi server lifecycle with automatic start and man
 - **Protocol**: OSC (Open Sound Control) over UDP
 - **Default Port**: Typically 4557 (Sonic Pi standard)
 - **Message Format**: Sonic Pi command messages
-- **Error Handling**: 
+- **Error Handling**:
   - Connection timeouts
   - Server not responding
   - Invalid Ruby syntax feedback
@@ -229,33 +229,33 @@ Developers should verify the repository is currently accessible and maintained, 
 
 ### 7.1 Code Execution Path
 ```
-User Code (.live.py) 
-  → Python Interpreter 
-  → Generated Ruby (last.rb) 
-  → Extension Reader 
-  → OSC Protocol 
-  → Sonic Pi Server 
+User Code (.live.py)
+  → Python Interpreter
+  → Generated Ruby (last.rb)
+  → Extension Reader
+  → OSC Protocol
+  → Sonic Pi Server
   → Audio Output
 ```
 
 ### 7.2 Control Flow
 ```
-User Keypress (Alt+R) 
-  → Extension Command Handler 
-  → Python Script Execution 
-  → File System I/O 
+User Keypress (Alt+R)
+  → Extension Command Handler
+  → Python Script Execution
+  → File System I/O
   → Server Communication
 ```
 
 ### 7.3 Server Lifecycle
 ```
-File Open (.live.py) 
-  → Extension Activation 
-  → Server Start 
+File Open (.live.py)
+  → Extension Activation
+  → Server Start
   → Ready State
 
 User Command (Stop Server)
-  → Server Stop 
+  → Server Stop
   → Cleanup
 ```
 
