@@ -35,7 +35,8 @@ export class ConfigurationManager {
       case 'darwin':
         return '/Applications/Sonic Pi.app';
       case 'linux':
-        // Try common Linux installation paths
+        // Returns primary default path; /opt/sonic-pi is most common
+        // Users can override via configuration if installed elsewhere (e.g., /usr/lib/sonic-pi)
         return '/opt/sonic-pi';
       default:
         return '';

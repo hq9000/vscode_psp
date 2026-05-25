@@ -73,6 +73,8 @@ export class Logger {
 
   /**
    * Dispose the logger
+   * Note: The output channel itself is disposed by extension.ts which owns it.
+   * This method just clears the internal reference.
    */
   static dispose(): void {
     Logger.outputChannel = null;
