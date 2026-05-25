@@ -479,57 +479,6 @@ This document outlines the step-by-step implementation plan for building the VSC
 - Code coverage meets target
 - Tests run in CI
 
-### 8.2 Integration Tests
-**Goal**: Test component interactions
-
-**Tasks**:
-- [ ] Write integration tests for:
-  - Server start → Python execution → OSC send flow
-  - Configuration changes affecting behavior
-  - Error handling across components
-- [ ] Use test fixtures (sample `.live.py` files, mock Sonic Pi server)
-- [ ] Test on multiple platforms (Windows, macOS, Linux)
-
-**Validation**:
-- Integration tests pass
-- Cross-platform issues are identified and fixed
-
-### 8.3 End-to-End Testing
-**Goal**: Test complete user workflows
-
-**Tasks**:
-- [ ] Create sample `.live.py` files for testing
-- [ ] Test complete workflows:
-  - Open file → Auto-start server → Run code → Hear audio
-  - Multiple iterations of edit → run
-  - Stop playback
-  - Stop server
-- [ ] Test with actual Sonic Pi installation
-- [ ] Test error scenarios manually
-- [ ] Create test documentation for contributors
-
-**Validation**:
-- E2E scenarios work as expected
-- Audio output is produced
-- No crashes or hangs
-
-### 8.4 Performance Testing
-**Goal**: Ensure responsive user experience
-
-**Tasks**:
-- [ ] Measure extension activation time
-- [ ] Profile Python execution time
-- [ ] Test rapid consecutive runs (Alt+R spam)
-- [ ] Monitor memory usage over extended sessions
-- [ ] Optimize slow operations
-- [ ] Ensure UI remains responsive during operations
-
-**Validation**:
-- Extension activates quickly (<1s)
-- Operations feel instantaneous
-- No memory leaks
-- UI doesn't freeze
-
 ## Phase 9: Documentation
 
 ### 9.1 User Documentation
@@ -706,12 +655,12 @@ This document outlines the step-by-step implementation plan for building the VSC
 | Phase 5: Communication Layer | 3-4 days | Phase 3 |
 | Phase 6: Commands & Keybindings | 2-3 days | Phase 4, 5 |
 | Phase 7: UI & Feedback | 2-3 days | Phase 6 |
-| Phase 8: Testing | 4-5 days | Phase 7 |
+| Phase 8: Testing | 2-3 days | Phase 7 |
 | Phase 9: Documentation | 2-3 days | Phase 8 |
 | Phase 10: Packaging | 1-2 days | Phase 9 |
 | Phase 11: Post-Release | Ongoing | Phase 10 |
 
-**Total Development Time**: Approximately 4-6 weeks for MVP release
+**Total Development Time**: Approximately 3-5 weeks for MVP release
 
 ## Success Criteria
 
