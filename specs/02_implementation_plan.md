@@ -77,11 +77,11 @@ This document outlines the step-by-step implementation plan for building the VSC
 **Goal**: Implement proper extension lifecycle management
 
 **Tasks**:
-- [ ] Create main `extension.ts` with `activate()` and `deactivate()` functions
-- [ ] Set up extension context for state management
-- [ ] Initialize logging/output channel for user feedback
-- [ ] Create utility modules for common functionality
-- [ ] Implement proper error handling foundation
+- [x] Create main `extension.ts` with `activate()` and `deactivate()` functions
+- [x] Set up extension context for state management
+- [x] Initialize logging/output channel for user feedback
+- [x] Create utility modules for common functionality
+- [x] Implement proper error handling foundation
 
 **Validation**:
 - Extension activates on `.live.py` file open
@@ -93,7 +93,7 @@ This document outlines the step-by-step implementation plan for building the VSC
 **Goal**: Implement extension settings system
 
 **Tasks**:
-- [ ] Define configuration schema in `package.json`:
+- [x] Define configuration schema in `package.json`:
   - `vscode-psp.sonicPiRootDirectory` (string, platform-specific defaults)
   - `vscode-psp.autoStartServer` (boolean, default: true)
   - `vscode-psp.outputFile` (string, default: "${workspaceFolder}/last.rb")
@@ -103,9 +103,9 @@ This document outlines the step-by-step implementation plan for building the VSC
   - `vscode-psp.logClearOnRun` (boolean, default: true)
   - `vscode-psp.flashBackgroundColor` (string, default: "rgba(255,20,147,1.0)")
   - `vscode-psp.flashTextColor` (string, default: "rgba(255,255,255,1.0)")
-- [ ] Create `ConfigurationManager` class to access settings
-- [ ] Implement platform-specific defaults detection
-- [ ] Add configuration validation logic
+- [x] Create `ConfigurationManager` class to access settings
+- [x] Implement platform-specific defaults detection
+- [x] Add configuration validation logic
 
 **Validation**:
 - Settings appear in VSCode Settings UI
@@ -117,12 +117,12 @@ This document outlines the step-by-step implementation plan for building the VSC
 **Goal**: Register and handle `.live.py` files
 
 **Tasks**:
-- [ ] Register `.live.py` file association in `package.json`
-- [ ] Create `FileHandler` module
-- [ ] Implement file type detection logic
-- [ ] Set up file watching for active `.live.py` files
-- [ ] Handle file open/close events
-- [ ] Trigger server lifecycle based on file events
+- [x] Register `.live.py` file association in `package.json`
+- [x] Create `FileHandler` module
+- [x] Implement file type detection logic
+- [x] Set up file watching for active `.live.py` files
+- [x] Handle file open/close events
+- [x] Trigger server lifecycle based on file events
 
 **Validation**:
 - `.live.py` files are recognized by the extension

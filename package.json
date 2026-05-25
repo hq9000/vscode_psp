@@ -44,7 +44,63 @@
           "Python (Live)"
         ]
       }
-    ]
+    ],
+    "configuration": {
+      "title": "VSCode PSP",
+      "properties": {
+        "vscode-psp.sonicPiRootDirectory": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Path to Sonic Pi installation directory. Leave empty for auto-detection. Platform-specific defaults:\n- **Windows**: `C:\\Program Files\\Sonic Pi`\n- **macOS**: `/Applications/Sonic Pi.app`\n- **Linux**: `/opt/sonic-pi` or `/usr/lib/sonic-pi`"
+        },
+        "vscode-psp.autoStartServer": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically start Sonic Pi server when opening a .live.py file"
+        },
+        "vscode-psp.outputFile": {
+          "type": "string",
+          "default": "${workspaceFolder}/last.rb",
+          "description": "Path to the output Ruby file that will be sent to Sonic Pi"
+        },
+        "vscode-psp.serverPort": {
+          "type": "number",
+          "default": 4557,
+          "description": "Port number for Sonic Pi server communication (default: 4557)"
+        },
+        "vscode-psp.logLevel": {
+          "type": "string",
+          "enum": [
+            "debug",
+            "info",
+            "warn",
+            "error"
+          ],
+          "default": "info",
+          "description": "Logging level for extension output"
+        },
+        "vscode-psp.logAutoscroll": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically scroll to the bottom of the log output"
+        },
+        "vscode-psp.logClearOnRun": {
+          "type": "boolean",
+          "default": true,
+          "description": "Clear the log output when running a file"
+        },
+        "vscode-psp.flashBackgroundColor": {
+          "type": "string",
+          "default": "rgba(255,20,147,1.0)",
+          "description": "Background color for flash feedback (CSS color format)"
+        },
+        "vscode-psp.flashTextColor": {
+          "type": "string",
+          "default": "rgba(255,255,255,1.0)",
+          "description": "Text color for flash feedback (CSS color format)"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
