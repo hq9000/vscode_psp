@@ -18,6 +18,13 @@ export enum ServerState {
 }
 
 /**
+ * Server configuration constants
+ */
+const SERVER_STARTUP_WAIT_MS = 2000; // Time to wait for server to initialize
+const SERVER_STOP_TIMEOUT_MS = 5000; // Maximum time to wait for graceful shutdown
+const STOP_CHECK_INTERVAL_MS = 100; // Polling interval for checking server stop
+
+/**
  * Server manager for Sonic Pi server lifecycle management
  */
 export class ServerManager {
@@ -229,10 +236,17 @@ export class ServerManager {
 
     switch (platform) {
       case 'win32':
-        // Windows: sonic-pi.exe in the root or bin directory
+        // Windows: sonic-pi.exe or Sonic-Pi.exe in the root or bin directory
+        // Check both naming conventions (lowercase and capitalized)
         serverPath = path.join(sonicPiRoot, 'sonic-pi.exe');
         if (!fs.existsSync(serverPath)) {
+          serverPath = path.join(sonicPiRoot, 'Sonic-Pi.exe');
+        }
+        if (!fs.existsSync(serverPath)) {
           serverPath = path.join(sonicPiRoot, 'bin', 'sonic-pi.exe');
+        }
+        if (!fs.existsSync(serverPath)) {
+          serverPath = path.join(sonicPiRoot, 'bin', 'Sonic-Pi.exe');
         }
         break;
 
@@ -371,7 +385,7 @@ export class ServerManager {
     // Simple delay to allow server to initialize
     // In a production implementation, this should be replaced with
     // actual health checks (e.g., trying to connect to the OSC port)
-    return new Promise((resolve) => setTimeout(resolve, 2000));
+    return new Promise((resolve) => setTimeout(resolve, SERVER_STARTUP_WAIT_MS));
   }
 
   /**
@@ -379,7 +393,6 @@ export class ServerManager {
    */
   private async waitForServerStop(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const maxWait = 5000; // 5 seconds
       const startTime = Date.now();
       
       const checkInterval = setInterval(() => {
@@ -387,7 +400,7 @@ export class ServerManager {
           if (!this.serverProcess || this.serverProcess.killed) {
             clearInterval(checkInterval);
             resolve();
-          } else if (Date.now() - startTime > maxWait) {
+          } else if (Date.now() - startTime > SERVER_STOP_TIMEOUT_MS) {
             clearInterval(checkInterval);
             resolve();
           }
@@ -395,7 +408,7 @@ export class ServerManager {
           clearInterval(checkInterval);
           reject(error);
         }
-      }, 100);
+      }, STOP_CHECK_INTERVAL_MS);
     });
   }
 
