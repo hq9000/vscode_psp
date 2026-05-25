@@ -19,6 +19,8 @@ suite('Extension Test Suite', () => {
     const commands = await vscode.commands.getCommands(true);
     assert.ok(commands.includes('vscode-psp.start'));
     assert.ok(commands.includes('vscode-psp.stop'));
+    assert.ok(commands.includes('vscode-psp.restart'));
+    assert.ok(commands.includes('vscode-psp.checkServerStatus'));
     assert.ok(commands.includes('vscode-psp.run'));
   });
 });
