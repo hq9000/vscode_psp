@@ -1,0 +1,11 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="64" fill="#4A90E2"/>
+  
+  <!-- Musical note symbol -->
+  <path d="M50 35 L50 85 C50 90 45 95 40 95 C35 95 30 90 30 85 C30 80 35 75 40 75 C43 75 46 76 48 78 L48 45 L75 40 L75 75 C75 80 70 85 65 85 C60 85 55 80 55 75 C55 70 60 65 65 65 C68 65 71 66 73 68 L73 35 Z" fill="white"/>
+  
+  <!-- Python-style chevrons -->
+  <path d="M85 50 L95 60 L85 70" stroke="white" stroke-width="3" fill="none"/>
+  <path d="M100 50 L110 60 L100 70" stroke="white" stroke-width="3" fill="none"/>
+</svg>

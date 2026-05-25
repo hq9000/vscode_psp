@@ -16,16 +16,16 @@ This document outlines the step-by-step implementation plan for building the VSC
 **Goal**: Set up the basic VSCode extension structure
 
 **Tasks**:
-- [ ] Create new VSCode extension project using Yeoman generator (`yo code`)
-- [ ] Choose TypeScript as the implementation language
-- [ ] Configure project structure:
+- [x] Create new VSCode extension project using Yeoman generator (`yo code`)
+- [x] Choose TypeScript as the implementation language
+- [x] Configure project structure:
   - `src/` - Source code directory
   - `test/` - Test directory
   - `package.json` - Extension manifest and configuration
   - `tsconfig.json` - TypeScript configuration
-- [ ] Set up build tools (webpack for bundling)
-- [ ] Configure linting (ESLint) and formatting (Prettier)
-- [ ] Initialize Git repository with proper `.gitignore`
+- [x] Set up build tools (webpack for bundling)
+- [x] Configure linting (ESLint) and formatting (Prettier)
+- [x] Initialize Git repository with proper `.gitignore`
 
 **Validation**:
 - Extension project structure exists
@@ -37,16 +37,16 @@ This document outlines the step-by-step implementation plan for building the VSC
 **Goal**: Define extension metadata and capabilities
 
 **Tasks**:
-- [ ] Update `package.json` with extension details:
+- [x] Update `package.json` with extension details:
   - Name: `vscode-psp`
   - Display name: "VSCode PSP - Python Sonic Pi"
   - Description, version, publisher information
-- [ ] Define activation events:
+- [x] Define activation events:
   - `onLanguage:python` (when .live.py files are opened)
   - `onCommand:vscode-psp.*` (for explicit commands)
-- [ ] Declare file association for `.live.py` files
-- [ ] Define extension categories: "Programming Languages", "Other"
-- [ ] Add icon and branding assets
+- [x] Declare file association for `.live.py` files
+- [x] Define extension categories: "Programming Languages", "Other"
+- [x] Add icon and branding assets
 
 **Validation**:
 - Extension appears in Extension Development Host
@@ -57,15 +57,15 @@ This document outlines the step-by-step implementation plan for building the VSC
 **Goal**: Install necessary npm packages
 
 **Tasks**:
-- [ ] Add `osc-js` for OSC/UDP communication with Sonic Pi
-- [ ] Add VSCode extension dependencies:
+- [x] Add `osc-js` for OSC/UDP communication with Sonic Pi
+- [x] Add VSCode extension dependencies:
   - `@types/vscode`
   - `@types/node`
-- [ ] Add development dependencies:
+- [x] Add development dependencies:
   - TypeScript
   - Webpack and related loaders
   - Testing frameworks (if applicable)
-- [ ] Document dependency choices in README
+- [x] Document dependency choices in README
 
 **Validation**:
 - All dependencies install without errors
