@@ -136,21 +136,21 @@ This document outlines the step-by-step implementation plan for building the VSC
 **Goal**: Implement Sonic Pi server lifecycle management
 
 **Tasks**:
-- [ ] Create `ServerManager` class
-- [ ] Implement server detection logic (check if already running)
-- [ ] Implement server start functionality:
+- [x] Create `ServerManager` class
+- [x] Implement server detection logic (check if already running)
+- [x] Implement server start functionality:
   - Locate Sonic Pi executable using configuration
   - Spawn server process as child process
   - Capture stdout/stderr for logging
   - Detect successful startup
-- [ ] Implement server stop functionality:
+- [x] Implement server stop functionality:
   - Send graceful shutdown signal
   - Force kill if necessary
   - Clean up resources
-- [ ] Implement server health monitoring:
+- [x] Implement server health monitoring:
   - Periodic health checks
   - Automatic restart on crash (optional)
-- [ ] Handle platform-specific differences (Windows, macOS, Linux)
+- [x] Handle platform-specific differences (Windows, macOS, Linux)
 
 **Validation**:
 - Server starts successfully when `.live.py` file is opened
@@ -163,12 +163,12 @@ This document outlines the step-by-step implementation plan for building the VSC
 **Goal**: Automatic server startup on file open
 
 **Tasks**:
-- [ ] Implement trigger on `.live.py` file open event
-- [ ] Check if server is already running before starting
-- [ ] Respect `autoStartServer` configuration setting
-- [ ] Show progress notification during startup
-- [ ] Handle startup failures gracefully
-- [ ] Provide user feedback via status bar or notifications
+- [x] Implement trigger on `.live.py` file open event
+- [x] Check if server is already running before starting
+- [x] Respect `autoStartServer` configuration setting
+- [x] Show progress notification during startup
+- [x] Handle startup failures gracefully
+- [x] Provide user feedback via status bar or notifications
 
 **Validation**:
 - Server automatically starts on first `.live.py` file open
@@ -181,15 +181,15 @@ This document outlines the step-by-step implementation plan for building the VSC
 **Goal**: Implement user commands for server control
 
 **Tasks**:
-- [ ] Register commands in `package.json`:
+- [x] Register commands in `package.json`:
   - `vscode-psp.startServer` - Start Sonic Pi server
   - `vscode-psp.stopServer` - Stop Sonic Pi server
   - `vscode-psp.restartServer` - Restart server
   - `vscode-psp.checkServerStatus` - Display server status
-- [ ] Implement command handlers
-- [ ] Add commands to Command Palette
-- [ ] Create status bar item showing server state
-- [ ] Handle edge cases (start when already running, etc.)
+- [x] Implement command handlers
+- [x] Add commands to Command Palette
+- [x] Create status bar item showing server state
+- [x] Handle edge cases (start when already running, etc.)
 
 **Validation**:
 - Commands appear in Command Palette

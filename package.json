@@ -16,6 +16,8 @@
     "onLanguage:python",
     "onCommand:vscode-psp.start",
     "onCommand:vscode-psp.stop",
+    "onCommand:vscode-psp.restart",
+    "onCommand:vscode-psp.checkServerStatus",
     "onCommand:vscode-psp.run"
   ],
   "main": "./dist/extension.js",
@@ -28,6 +30,14 @@
       {
         "command": "vscode-psp.stop",
         "title": "PSP: Stop Sonic Pi Server"
+      },
+      {
+        "command": "vscode-psp.restart",
+        "title": "PSP: Restart Sonic Pi Server"
+      },
+      {
+        "command": "vscode-psp.checkServerStatus",
+        "title": "PSP: Check Server Status"
       },
       {
         "command": "vscode-psp.run",

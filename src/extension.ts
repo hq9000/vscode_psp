@@ -3,6 +3,7 @@ import { Logger } from './utils/logger';
 import { ErrorHandler } from './utils/errorHandler';
 import { ConfigurationManager } from './config/configurationManager';
 import { FileHandler } from './files/fileHandler';
+import { ServerManager } from './server/serverManager';
 
 // Global output channel for logging
 let outputChannel: vscode.OutputChannel;
@@ -28,6 +29,10 @@ export function activate(context: vscode.ExtensionContext) {
     configErrors.forEach(error => Logger.warn(`  - ${error}`));
   }
   
+  // Initialize server manager
+  const serverManager = ServerManager.getInstance();
+  serverManager.initialize(context);
+  
   // Initialize file handler
   FileHandler.initialize(context);
 
@@ -35,15 +40,31 @@ export function activate(context: vscode.ExtensionContext) {
   const startCommand = vscode.commands.registerCommand('vscode-psp.start', 
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Start server command invoked');
-      vscode.window.showInformationMessage('PSP: Starting Sonic Pi Server (not yet implemented)');
+      await serverManager.startServer();
     }, 'startCommand')
   );
 
   const stopCommand = vscode.commands.registerCommand('vscode-psp.stop',
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Stop server command invoked');
-      vscode.window.showInformationMessage('PSP: Stopping Sonic Pi Server (not yet implemented)');
+      await serverManager.stopServer();
     }, 'stopCommand')
+  );
+
+  const restartCommand = vscode.commands.registerCommand('vscode-psp.restart',
+    ErrorHandler.wrapAsync(async () => {
+      Logger.info('Restart server command invoked');
+      await serverManager.restartServer();
+    }, 'restartCommand')
+  );
+
+  const checkStatusCommand = vscode.commands.registerCommand('vscode-psp.checkServerStatus',
+    ErrorHandler.wrapAsync(async () => {
+      Logger.info('Check server status command invoked');
+      const statusInfo = serverManager.getStatusInfo();
+      vscode.window.showInformationMessage(statusInfo, { modal: false });
+      Logger.info(statusInfo);
+    }, 'checkStatusCommand')
   );
 
   const runCommand = vscode.commands.registerCommand('vscode-psp.run',
@@ -54,7 +75,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   // Add commands to subscriptions for proper cleanup
-  context.subscriptions.push(startCommand, stopCommand, runCommand);
+  context.subscriptions.push(startCommand, stopCommand, restartCommand, checkStatusCommand, runCommand);
 }
 
 /**
@@ -62,6 +83,10 @@ export function activate(context: vscode.ExtensionContext) {
  */
 export function deactivate() {
   Logger.info('VSCode PSP extension is now deactivated');
+  
+  // Dispose server manager
+  const serverManager = ServerManager.getInstance();
+  serverManager.dispose();
   
   // Dispose file handler
   FileHandler.dispose();
