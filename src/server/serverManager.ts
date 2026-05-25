@@ -389,6 +389,13 @@ export class ServerManager {
           resolve();
         }
       }, 100);
+      
+      // Ensure cleanup even if something goes wrong
+      Promise.resolve().then(() => {
+        setTimeout(() => {
+          clearInterval(checkInterval);
+        }, maxWait + 1000);
+      });
     });
   }
 

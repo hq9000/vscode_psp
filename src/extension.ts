@@ -62,8 +62,16 @@ export function activate(context: vscode.ExtensionContext) {
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Check server status command invoked');
       const statusInfo = serverManager.getStatusInfo();
-      vscode.window.showInformationMessage(statusInfo, { modal: false });
+      
+      // Show status in output channel for better formatting
+      Logger.show();
+      Logger.info('=== Server Status ===');
       Logger.info(statusInfo);
+      
+      // Also show a brief notification
+      const state = serverManager.getState();
+      const briefStatus = `Server is ${state}`;
+      vscode.window.showInformationMessage(briefStatus);
     }, 'checkStatusCommand')
   );
 
