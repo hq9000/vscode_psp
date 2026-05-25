@@ -213,7 +213,7 @@ export class ServerManager {
     status += `Port: ${port}\n`;
     status += `Sonic Pi Root: ${sonicPiRoot}\n`;
     
-    if (this.serverProcess) {
+    if (this.serverProcess && this.serverProcess.pid) {
       status += `Process ID: ${this.serverProcess.pid}\n`;
     }
     
@@ -378,17 +378,22 @@ export class ServerManager {
    * Wait for server to stop
    */
   private async waitForServerStop(): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const maxWait = 5000; // 5 seconds
       const startTime = Date.now();
       
       const checkInterval = setInterval(() => {
-        if (!this.serverProcess || this.serverProcess.killed) {
+        try {
+          if (!this.serverProcess || this.serverProcess.killed) {
+            clearInterval(checkInterval);
+            resolve();
+          } else if (Date.now() - startTime > maxWait) {
+            clearInterval(checkInterval);
+            resolve();
+          }
+        } catch (error) {
           clearInterval(checkInterval);
-          resolve();
-        } else if (Date.now() - startTime > maxWait) {
-          clearInterval(checkInterval);
-          resolve();
+          reject(error);
         }
       }, 100);
     });
