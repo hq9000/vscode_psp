@@ -364,10 +364,12 @@ export class ServerManager {
 
   /**
    * Wait for server to start (simple delay-based approach)
+   * TODO: In Phase 5, replace with actual health check by attempting
+   * to connect to the OSC port instead of using a fixed delay
    */
   private async waitForServerStart(): Promise<void> {
     // Simple delay to allow server to initialize
-    // In a production implementation, this could be replaced with
+    // In a production implementation, this should be replaced with
     // actual health checks (e.g., trying to connect to the OSC port)
     return new Promise((resolve) => setTimeout(resolve, 2000));
   }
@@ -389,13 +391,6 @@ export class ServerManager {
           resolve();
         }
       }, 100);
-      
-      // Ensure cleanup even if something goes wrong
-      Promise.resolve().then(() => {
-        setTimeout(() => {
-          clearInterval(checkInterval);
-        }, maxWait + 1000);
-      });
     });
   }
 
