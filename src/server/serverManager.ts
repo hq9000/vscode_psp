@@ -220,8 +220,10 @@ export class ServerManager {
     status += `Port: ${port}\n`;
     status += `Sonic Pi Root: ${sonicPiRoot}\n`;
     
-    if (this.serverProcess && this.serverProcess.pid) {
-      status += `Process ID: ${this.serverProcess.pid}\n`;
+    // Include process ID if available (using optional chaining for safety)
+    const pid = this.serverProcess?.pid;
+    if (pid) {
+      status += `Process ID: ${pid}\n`;
     }
     
     return status;
@@ -385,6 +387,7 @@ export class ServerManager {
     // Simple delay to allow server to initialize
     // In a production implementation, this should be replaced with
     // actual health checks (e.g., trying to connect to the OSC port)
+    // Phase 5 will implement proper OSC connectivity checks
     return new Promise((resolve) => setTimeout(resolve, SERVER_STARTUP_WAIT_MS));
   }
 
