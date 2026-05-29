@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import { Logger } from '../utils/logger';
+import { ConfigurationManager } from '../config/configurationManager';
+import { ServerManager } from '../server/serverManager';
 
 /**
  * File handler for managing .live.py files
@@ -59,7 +61,8 @@ export class FileHandler {
       this.setupFileWatcher(filePath);
       
       // Notify about file open (can be used to trigger server start)
-      this.onFileActivated(filePath);
+      // Using void to intentionally ignore the promise
+      void this.onFileActivated(filePath);
     }
   }
 
@@ -120,10 +123,28 @@ export class FileHandler {
    * Called when a .live.py file is activated
    * This can be used to trigger server startup
    */
-  private static onFileActivated(filePath: string): void {
+  private static async onFileActivated(filePath: string): Promise<void> {
     Logger.info(`File activated: ${filePath}`);
-    // TODO: Trigger server lifecycle management (Phase 3)
-    // For now, just log the event
+    
+    // Check if auto-start is enabled
+    const autoStart = ConfigurationManager.getAutoStartServer();
+    if (!autoStart) {
+      Logger.info('Auto-start is disabled, skipping server start');
+      return;
+    }
+    
+    // Get server manager instance
+    const serverManager = ServerManager.getInstance();
+    
+    // Check if server is already running
+    if (serverManager.isRunning()) {
+      Logger.info('Server is already running');
+      return;
+    }
+    
+    // Start the server
+    Logger.info('Auto-starting Sonic Pi server');
+    await serverManager.startServer();
   }
 
   /**
