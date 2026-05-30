@@ -24,6 +24,8 @@ export enum ServerState {
 const SERVER_STARTUP_WAIT_MS = 2000; // Time to wait for server to initialize
 const SERVER_STOP_TIMEOUT_MS = 5000; // Maximum time to wait for graceful shutdown
 const STOP_CHECK_INTERVAL_MS = 100; // Polling interval for checking server stop
+// Number of fields in daemon stdout: daemon gui-listen-to-server gui-send-to-server scsynth osc-cues tau-api token
+const DAEMON_OUTPUT_FIELD_COUNT = 7;
 
 /**
  * Parsed daemon stdout parameters.
@@ -469,7 +471,7 @@ export class ServerManager {
     const lines = output.split('\n');
     for (const line of lines) {
       const parts = line.trim().split(/\s+/);
-      if (parts.length === 7 && parts.every(p => /^-?\d+$/.test(p))) {
+      if (parts.length === DAEMON_OUTPUT_FIELD_COUNT && parts.every(p => /^-?\d+$/.test(p))) {
         const values = parts.map(p => parseInt(p, 10));
         return {
           daemon: values[0],

@@ -66,8 +66,9 @@ export class KeepaliveManager {
     if (this.socket) {
       try {
         this.socket.close();
-      } catch {
-        // Socket may already be closed
+      } catch (err) {
+        // Socket may already be closed (e.g. due to prior error)
+        Logger.debug(`Socket close error (safe to ignore): ${err instanceof Error ? err.message : String(err)}`);
       }
       this.socket = null;
     }
