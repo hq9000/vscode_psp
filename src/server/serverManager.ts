@@ -54,7 +54,7 @@ export class ServerManager {
     );
     this.statusBarItem.command = 'vscode-psp.checkServerStatus';
     context.subscriptions.push(this.statusBarItem);
-    
+
     this.updateStatusBar();
   }
 
@@ -102,7 +102,7 @@ export class ServerManager {
       }
 
       Logger.info(`Starting Sonic Pi server from: ${serverPath}`);
-      
+
       // Show progress notification
       await vscode.window.withProgress({
         location: vscode.ProgressLocation.Notification,
@@ -110,13 +110,13 @@ export class ServerManager {
         cancellable: false
       }, async (progress) => {
         progress.report({ message: 'Locating server executable...' });
-        
+
         // Spawn server process
         const { command, args, options } = this.getServerSpawnConfig(serverPath);
         Logger.debug(`Spawning server: ${command} ${args.join(' ')}`);
-        
+
         progress.report({ message: 'Launching server process...' });
-        
+
         this.serverProcess = childProcess.spawn(command, args, options);
 
         // Set up process event handlers
@@ -214,78 +214,70 @@ export class ServerManager {
   getStatusInfo(): string {
     const port = ConfigurationManager.getServerPort();
     const sonicPiRoot = ConfigurationManager.getSonicPiRootDirectory();
-    
+
     let status = `Sonic Pi Server Status\n\n`;
     status += `State: ${this.serverState}\n`;
     status += `Port: ${port}\n`;
     status += `Sonic Pi Root: ${sonicPiRoot}\n`;
-    
+
     // Include process ID if available (using optional chaining for safety)
     const pid = this.serverProcess?.pid;
     if (pid) {
       status += `Process ID: ${pid}\n`;
     }
-    
+
     return status;
   }
 
   /**
-   * Get platform-specific server executable path
+   * Get the path to the Ruby interpreter based on platform
+   */
+  private getRubyPath(sonicPiRoot: string): string {
+    const platform = os.platform();
+
+    if (platform === 'win32') {
+      return path.join(sonicPiRoot, 'app', 'server', 'native', 'ruby', 'bin', 'ruby.exe');
+    } else if (platform === 'darwin') {
+      return '/usr/bin/ruby';
+    } else {
+      return 'ruby';
+    }
+  }
+
+  /**
+   * Get the path to the daemon launcher script based on platform
+   */
+  private getDaemonLauncherPath(sonicPiRoot: string): string {
+    const platform = os.platform();
+
+    if (platform === 'win32') {
+      return path.join(sonicPiRoot, 'app', 'server', 'ruby', 'bin', 'daemon.rb');
+    } else {
+      return path.join(sonicPiRoot, 'server', 'ruby', 'bin', 'daemon.rb');
+    }
+  }
+
+  /**
+   * Get platform-specific server executable path (daemon.rb script)
    */
   private getServerExecutablePath(sonicPiRoot: string): string | null {
     const platform = os.platform();
-    let serverPath: string;
 
-    switch (platform) {
-      case 'win32':
-        // Windows: sonic-pi.exe or Sonic-Pi.exe in the root or bin directory
-        // Check both naming conventions (lowercase and capitalized)
-        serverPath = path.join(sonicPiRoot, 'sonic-pi.exe');
-        if (!fs.existsSync(serverPath)) {
-          serverPath = path.join(sonicPiRoot, 'Sonic-Pi.exe');
-        }
-        if (!fs.existsSync(serverPath)) {
-          serverPath = path.join(sonicPiRoot, 'bin', 'sonic-pi.exe');
-        }
-        if (!fs.existsSync(serverPath)) {
-          serverPath = path.join(sonicPiRoot, 'bin', 'Sonic-Pi.exe');
-        }
-        break;
-
-      case 'darwin':
-        // macOS: Inside the app bundle
-        serverPath = path.join(sonicPiRoot, 'Contents', 'MacOS', 'Sonic Pi');
-        if (!fs.existsSync(serverPath)) {
-          // Alternative: server binary
-          serverPath = path.join(sonicPiRoot, 'server', 'ruby', 'bin', 'sonic-pi-server.rb');
-        }
-        break;
-
-      case 'linux':
-        // Linux: Usually in bin directory or directly accessible
-        serverPath = path.join(sonicPiRoot, 'bin', 'sonic-pi');
-        if (!fs.existsSync(serverPath)) {
-          serverPath = path.join(sonicPiRoot, 'sonic-pi');
-        }
-        if (!fs.existsSync(serverPath)) {
-          // Try the server script directly
-          serverPath = path.join(sonicPiRoot, 'app', 'server', 'ruby', 'bin', 'sonic-pi-server.rb');
-        }
-        break;
-
-      default:
-        Logger.error(`Unsupported platform: ${platform}`);
-        return null;
-    }
-
-    // Verify the path exists
-    if (!fs.existsSync(serverPath)) {
-      Logger.error(`Server executable not found at: ${serverPath}`);
+    if (platform !== 'win32' && platform !== 'darwin' && platform !== 'linux') {
+      Logger.error(`Unsupported platform: ${platform}`);
       return null;
     }
 
-    Logger.debug(`Found server executable at: ${serverPath}`);
-    return serverPath;
+    const daemonPath = this.getDaemonLauncherPath(sonicPiRoot);
+
+    // Verify the path exists
+    if (!fs.existsSync(daemonPath)) {
+      Logger.error(`Daemon launcher script not found at: ${daemonPath}`);
+      return null;
+    }
+
+    Logger.debug(`Found daemon launcher at: ${daemonPath}`);
+    return daemonPath;
   }
 
   /**
@@ -296,31 +288,14 @@ export class ServerManager {
     args: string[];
     options: childProcess.SpawnOptions;
   } {
-    const platform = os.platform();
-    let command: string;
-    let args: string[] = [];
+    const sonicPiRoot = ConfigurationManager.getSonicPiRootDirectory();
+    const rubyPath = this.getRubyPath(sonicPiRoot);
+    const command = rubyPath;
+    const args: string[] = [serverPath, '--no-scsynth-inputs'];
     const options: childProcess.SpawnOptions = {
       detached: false,
       stdio: ['ignore', 'pipe', 'pipe']
     };
-
-    if (platform === 'darwin' && serverPath.endsWith('.rb')) {
-      // On macOS, if we have a Ruby script, use ruby to execute it
-      command = 'ruby';
-      args = [serverPath];
-    } else if (platform === 'linux' && serverPath.endsWith('.rb')) {
-      // On Linux, if we have a Ruby script, use ruby to execute it
-      command = 'ruby';
-      args = [serverPath];
-    } else {
-      // Direct executable
-      command = serverPath;
-      args = [];
-    }
-
-    // Add server-specific arguments if needed
-    // Note: Sonic Pi server typically doesn't need special arguments
-    // but this can be extended based on actual requirements
 
     return { command, args, options };
   }
@@ -357,7 +332,7 @@ export class ServerManager {
     this.serverProcess.on('exit', (code, signal) => {
       Logger.info(`Server process exited with code ${code}, signal ${signal}`);
       this.serverProcess = null;
-      
+
       if (this.serverState === ServerState.running) {
         // Unexpected exit
         this.serverState = ServerState.error;
@@ -397,7 +372,7 @@ export class ServerManager {
   private async waitForServerStop(): Promise<void> {
     return new Promise((resolve, reject) => {
       const startTime = Date.now();
-      
+
       const checkInterval = setInterval(() => {
         try {
           if (!this.serverProcess || this.serverProcess.killed) {
@@ -460,7 +435,7 @@ export class ServerManager {
    */
   dispose(): void {
     Logger.info('Disposing server manager');
-    
+
     if (this.serverProcess) {
       Logger.info('Cleaning up server process');
       this.serverProcess.kill('SIGTERM');

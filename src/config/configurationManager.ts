@@ -31,13 +31,11 @@ export class ConfigurationManager {
 
     switch (platform) {
       case 'win32':
-        return 'C:\\Program Files\\Sonic Pi';
+        return 'C:\\home\\projects\\sonic-pi\\sonic-pi';
       case 'darwin':
-        return '/Applications/Sonic Pi.app';
+        return '/Applications/Sonic Pi.app/Contents/Resources';
       case 'linux':
-        // Returns primary default path; /opt/sonic-pi is most common
-        // Users can override via configuration if installed elsewhere (e.g., /usr/lib/sonic-pi)
-        return '/opt/sonic-pi';
+        return '/home/user/sonic-pi';
       default:
         return '';
     }

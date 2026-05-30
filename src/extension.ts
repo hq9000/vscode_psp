@@ -16,28 +16,28 @@ export function activate(context: vscode.ExtensionContext) {
   // Initialize output channel for user feedback
   outputChannel = vscode.window.createOutputChannel('VSCode PSP');
   context.subscriptions.push(outputChannel);
-  
+
   // Initialize logger with output channel
   Logger.initialize(outputChannel);
-  
+
   Logger.info('VSCode PSP extension is now active');
-  
+
   // Validate configuration
   const configErrors = ConfigurationManager.validateConfiguration();
   if (configErrors.length > 0) {
     Logger.warn('Configuration validation errors:');
     configErrors.forEach(error => Logger.warn(`  - ${error}`));
   }
-  
+
   // Initialize server manager
   const serverManager = ServerManager.getInstance();
   serverManager.initialize(context);
-  
+
   // Initialize file handler
   FileHandler.initialize(context);
 
   // Register commands
-  const startCommand = vscode.commands.registerCommand('vscode-psp.start', 
+  const startCommand = vscode.commands.registerCommand('vscode-psp.start',
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Start server command invoked');
       await serverManager.startServer();
@@ -62,12 +62,12 @@ export function activate(context: vscode.ExtensionContext) {
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Check server status command invoked');
       const statusInfo = serverManager.getStatusInfo();
-      
+
       // Show status in output channel for better formatting
       Logger.show();
       Logger.info('=== Server Status ===');
       Logger.info(statusInfo);
-      
+
       // Also show a brief notification
       const state = serverManager.getState();
       const briefStatus = `Server is ${state}`;
@@ -91,17 +91,17 @@ export function activate(context: vscode.ExtensionContext) {
  */
 export function deactivate() {
   Logger.info('VSCode PSP extension is now deactivated');
-  
+
   // Dispose server manager
   const serverManager = ServerManager.getInstance();
   serverManager.dispose();
-  
+
   // Dispose file handler
   FileHandler.dispose();
-  
+
   // Dispose logger
   Logger.dispose();
-  
+
   if (outputChannel) {
     outputChannel.dispose();
   }
