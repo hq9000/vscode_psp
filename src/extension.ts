@@ -4,6 +4,7 @@ import { ErrorHandler } from './utils/errorHandler';
 import { ConfigurationManager } from './config/configurationManager';
 import { FileHandler } from './files/fileHandler';
 import { ServerManager } from './server/serverManager';
+import { PythonEnvironment, PythonExecutor, OutputFileManager } from './python';
 
 // Global output channel for logging
 let outputChannel: vscode.OutputChannel;
@@ -35,6 +36,11 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Initialize file handler
   FileHandler.initialize(context);
+
+  // Initialize Python execution components
+  const pythonEnvironment = new PythonEnvironment();
+  const pythonExecutor = new PythonExecutor(pythonEnvironment);
+  const outputFileManager = new OutputFileManager();
 
   // Register commands
   const startCommand = vscode.commands.registerCommand('vscode-psp.start',
@@ -78,7 +84,86 @@ export function activate(context: vscode.ExtensionContext) {
   const runCommand = vscode.commands.registerCommand('vscode-psp.run',
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Run current file command invoked');
-      vscode.window.showInformationMessage('PSP: Running current file (not yet implemented)');
+
+      // Get the active editor
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showWarningMessage('PSP: No active file to run');
+        return;
+      }
+
+      const filePath = editor.document.fileName;
+      if (!filePath.endsWith('.live.py')) {
+        vscode.window.showWarningMessage('PSP: Current file is not a .live.py file');
+        return;
+      }
+
+      // Save the file before executing
+      if (editor.document.isDirty) {
+        await editor.document.save();
+      }
+
+      // Clear output if configured
+      if (ConfigurationManager.getLogClearOnRun()) {
+        outputChannel.clear();
+      }
+
+      // Detect Python environment if not already done
+      if (!pythonEnvironment.getPythonPath()) {
+        const detected = await pythonEnvironment.detectPythonPath();
+        if (!detected) {
+          vscode.window.showErrorMessage(
+            'PSP: No Python interpreter found. Please configure vscode-psp.pythonPath in settings.'
+          );
+          return;
+        }
+
+        // Validate version
+        const version = await pythonEnvironment.validatePythonVersion(detected);
+        if (!version) {
+          return;
+        }
+      }
+
+      // Ensure output directory exists
+      outputFileManager.ensureOutputDirectory();
+
+      // Execute the script
+      const result = await pythonExecutor.executeScript(filePath);
+
+      // Display output
+      if (result.stdout) {
+        Logger.info(`[Script Output]\n${result.stdout}`);
+      }
+      if (result.stderr) {
+        Logger.warn(`[Script Error]\n${result.stderr}`);
+      }
+
+      if (!result.success) {
+        if (result.timedOut) {
+          vscode.window.showErrorMessage('PSP: Script execution timed out');
+        } else {
+          vscode.window.showErrorMessage(`PSP: Script execution failed (exit code ${result.exitCode})`);
+        }
+        return;
+      }
+
+      // Read the output file
+      const outputContent = await outputFileManager.readOutputFile();
+      if (!outputContent) {
+        vscode.window.showErrorMessage(
+          'PSP: Script executed but no output file (last.rb) was generated'
+        );
+        return;
+      }
+
+      // Validate output content
+      if (!outputFileManager.validateContent(outputContent)) {
+        vscode.window.showWarningMessage('PSP: Output file content may be invalid');
+      }
+
+      Logger.info('Script executed and output file read successfully');
+      vscode.window.showInformationMessage('PSP: Script executed successfully');
     }, 'runCommand')
   );
 

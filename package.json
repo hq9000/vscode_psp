@@ -78,6 +78,11 @@
           "default": 4557,
           "description": "Port number for Sonic Pi server communication (default: 4557)"
         },
+        "vscode-psp.pythonPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to Python interpreter. Leave empty to auto-detect from VSCode Python extension or system PATH."
+        },
         "vscode-psp.logLevel": {
           "type": "string",
           "enum": [
