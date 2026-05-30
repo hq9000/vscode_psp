@@ -75,6 +75,14 @@ export class ConfigurationManager {
   }
 
   /**
+   * Get manually configured Python path (empty string means auto-detect)
+   */
+  static getPythonPath(): string {
+    const config = vscode.workspace.getConfiguration(this.configSection);
+    return config.get<string>('pythonPath', '');
+  }
+
+  /**
    * Get log level
    */
   static getLogLevel(): 'debug' | 'info' | 'warn' | 'error' {

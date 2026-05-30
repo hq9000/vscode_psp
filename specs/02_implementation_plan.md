@@ -203,12 +203,12 @@ This document outlines the step-by-step implementation plan for building the VSC
 **Goal**: Detect and use the active Python environment
 
 **Tasks**:
-- [ ] Integrate with VSCode Python extension API
-- [ ] Detect active Python virtual environment (venv)
-- [ ] Get path to Python interpreter
-- [ ] Validate Python version (3.8+)
-- [ ] Handle cases where no Python environment is active
-- [ ] Allow manual Python path configuration (fallback)
+- [x] Integrate with VSCode Python extension API
+- [x] Detect active Python virtual environment (venv)
+- [x] Get path to Python interpreter
+- [x] Validate Python version (3.8+)
+- [x] Handle cases where no Python environment is active
+- [x] Allow manual Python path configuration (fallback)
 
 **Validation**:
 - Correct Python interpreter is detected
@@ -220,18 +220,18 @@ This document outlines the step-by-step implementation plan for building the VSC
 **Goal**: Execute `.live.py` scripts
 
 **Tasks**:
-- [ ] Create `PythonExecutor` class
-- [ ] Implement script execution logic:
+- [x] Create `PythonExecutor` class
+- [x] Implement script execution logic:
   - Run Python script using detected interpreter
   - Pass appropriate environment variables
   - Execute in context of workspace root
   - Capture stdout/stderr
-- [ ] Handle script execution errors:
+- [x] Handle script execution errors:
   - Python syntax errors
   - Runtime exceptions
   - Timeouts
-- [ ] Display output in dedicated output channel
-- [ ] Implement execution queue (prevent multiple simultaneous runs)
+- [x] Display output in dedicated output channel
+- [x] Implement execution queue (prevent multiple simultaneous runs)
 
 **Validation**:
 - Python scripts execute successfully
@@ -243,14 +243,14 @@ This document outlines the step-by-step implementation plan for building the VSC
 **Goal**: Manage the `last.rb` intermediate file
 
 **Tasks**:
-- [ ] Implement logic to locate `last.rb`:
+- [x] Implement logic to locate `last.rb`:
   - Default to workspace root
   - Respect `outputFile` configuration
   - Create directory if needed
-- [ ] Read `last.rb` after Python execution
-- [ ] Validate file content (basic Ruby syntax check)
-- [ ] Handle missing or empty file cases
-- [ ] Implement file watching for debugging purposes (optional)
+- [x] Read `last.rb` after Python execution
+- [x] Validate file content (basic Ruby syntax check)
+- [x] Handle missing or empty file cases
+- [x] Implement file watching for debugging purposes (optional)
 
 **Validation**:
 - `last.rb` is correctly located after script execution
