@@ -54,7 +54,7 @@ export class ServerManager {
     );
     this.statusBarItem.command = 'vscode-psp.checkServerStatus';
     context.subscriptions.push(this.statusBarItem);
-    
+
     this.updateStatusBar();
   }
 
@@ -102,7 +102,7 @@ export class ServerManager {
       }
 
       Logger.info(`Starting Sonic Pi server from: ${serverPath}`);
-      
+
       // Show progress notification
       await vscode.window.withProgress({
         location: vscode.ProgressLocation.Notification,
@@ -110,13 +110,13 @@ export class ServerManager {
         cancellable: false
       }, async (progress) => {
         progress.report({ message: 'Locating server executable...' });
-        
+
         // Spawn server process
         const { command, args, options } = this.getServerSpawnConfig(serverPath);
         Logger.debug(`Spawning server: ${command} ${args.join(' ')}`);
-        
+
         progress.report({ message: 'Launching server process...' });
-        
+
         this.serverProcess = childProcess.spawn(command, args, options);
 
         // Set up process event handlers
@@ -214,18 +214,18 @@ export class ServerManager {
   getStatusInfo(): string {
     const port = ConfigurationManager.getServerPort();
     const sonicPiRoot = ConfigurationManager.getSonicPiRootDirectory();
-    
+
     let status = `Sonic Pi Server Status\n\n`;
     status += `State: ${this.serverState}\n`;
     status += `Port: ${port}\n`;
     status += `Sonic Pi Root: ${sonicPiRoot}\n`;
-    
+
     // Include process ID if available (using optional chaining for safety)
     const pid = this.serverProcess?.pid;
     if (pid) {
       status += `Process ID: ${pid}\n`;
     }
-    
+
     return status;
   }
 
@@ -332,7 +332,7 @@ export class ServerManager {
     this.serverProcess.on('exit', (code, signal) => {
       Logger.info(`Server process exited with code ${code}, signal ${signal}`);
       this.serverProcess = null;
-      
+
       if (this.serverState === ServerState.running) {
         // Unexpected exit
         this.serverState = ServerState.error;
@@ -372,7 +372,7 @@ export class ServerManager {
   private async waitForServerStop(): Promise<void> {
     return new Promise((resolve, reject) => {
       const startTime = Date.now();
-      
+
       const checkInterval = setInterval(() => {
         try {
           if (!this.serverProcess || this.serverProcess.killed) {
@@ -435,7 +435,7 @@ export class ServerManager {
    */
   dispose(): void {
     Logger.info('Disposing server manager');
-    
+
     if (this.serverProcess) {
       Logger.info('Cleaning up server process');
       this.serverProcess.kill('SIGTERM');
