@@ -5,9 +5,11 @@ import { ConfigurationManager } from './config/configurationManager';
 import { FileHandler } from './files/fileHandler';
 import { ServerManager } from './server/serverManager';
 import { PythonEnvironment, PythonExecutor, OutputFileManager } from './python';
+import { CommunicationManager } from './communication';
 
 // Global output channel for logging
 let outputChannel: vscode.OutputChannel;
+let communicationManagerInstance: CommunicationManager | null = null;
 
 /**
  * This method is called when the extension is activated.
@@ -42,6 +44,10 @@ export function activate(context: vscode.ExtensionContext) {
   const pythonExecutor = new PythonExecutor(pythonEnvironment);
   const outputFileManager = new OutputFileManager();
 
+  // Initialize communication manager
+  const communicationManager = new CommunicationManager();
+  communicationManagerInstance = communicationManager;
+
   // Register commands
   const startCommand = vscode.commands.registerCommand('vscode-psp.start',
     ErrorHandler.wrapAsync(async () => {
@@ -53,6 +59,8 @@ export function activate(context: vscode.ExtensionContext) {
   const stopCommand = vscode.commands.registerCommand('vscode-psp.stop',
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Stop server command invoked');
+      // Send stop command to Sonic Pi via OSC
+      await communicationManager.sendStop();
       await serverManager.stopServer();
     }, 'stopCommand')
   );
@@ -162,6 +170,15 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showWarningMessage('PSP: Output file content may be invalid');
       }
 
+      // Send the generated Ruby code to Sonic Pi via OSC
+      const sent = await communicationManager.sendCode(outputContent);
+      if (!sent) {
+        vscode.window.showWarningMessage('PSP: Code generated but failed to send to Sonic Pi server');
+        Logger.warn('Failed to send code to Sonic Pi server');
+      } else {
+        Logger.info('Code sent to Sonic Pi server successfully');
+      }
+
       Logger.info('Script executed and output file read successfully');
       vscode.window.showInformationMessage('PSP: Script executed successfully');
     }, 'runCommand')
@@ -176,6 +193,12 @@ export function activate(context: vscode.ExtensionContext) {
  */
 export function deactivate() {
   Logger.info('VSCode PSP extension is now deactivated');
+
+  // Dispose communication manager
+  if (communicationManagerInstance) {
+    communicationManagerInstance.dispose();
+    communicationManagerInstance = null;
+  }
 
   // Dispose server manager
   const serverManager = ServerManager.getInstance();
