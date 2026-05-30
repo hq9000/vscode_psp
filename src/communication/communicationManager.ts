@@ -140,7 +140,7 @@ export class CommunicationManager {
     }
 
     // All retries failed, queue the message
-    Logger.error(`Failed to send ${action} after ${MAX_RETRY_ATTEMPTS} attempts`);
+    Logger.error(`Failed to send ${action} after ${MAX_RETRY_ATTEMPTS} attempts. Connection state: ${this.getConnectionState()}. Ensure Sonic Pi server is running.`);
     this.queueMessage(action, payload);
     return false;
   }
