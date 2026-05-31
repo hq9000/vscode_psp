@@ -51,6 +51,7 @@ export class ServerManager {
   private statusBarItem: vscode.StatusBarItem | null = null;
   private keepaliveManager: KeepaliveManager | null = null;
   private daemonPorts: DaemonPorts | null = null;
+  private stdoutBuffer: string = '';
 
   /**
    * Get singleton instance
@@ -203,6 +204,7 @@ export class ServerManager {
       }
 
       this.daemonPorts = null;
+      this.stdoutBuffer = '';
       this.serverState = ServerState.stopped;
       this.updateStatusBar();
       Logger.info('Sonic Pi server stopped successfully');
@@ -331,20 +333,37 @@ export class ServerManager {
       return;
     }
 
-    // Handle stdout - also parse daemon port info
+    // Handle stdout - accumulate buffer and parse complete lines
     if (this.serverProcess.stdout) {
+      this.stdoutBuffer = '';
       this.serverProcess.stdout.on('data', (data) => {
-        const output = data.toString().trim();
-        if (output) {
-          Logger.debug(`[Server] ${output}`);
-          // Try to parse daemon ports from stdout if not yet parsed
-          if (!this.daemonPorts) {
-            const parsed = this.parseDaemonOutput(output);
+        const output = data.toString();
+        // Only buffer while we still need to parse daemon ports
+        if (!this.daemonPorts) {
+          this.stdoutBuffer += output;
+          const lines = this.stdoutBuffer.split(/\r?\n/);
+          // Keep the last (possibly incomplete) chunk in the buffer
+          this.stdoutBuffer = lines.pop() ?? '';
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) {
+              continue;
+            }
+            Logger.debug(`[Server] ${trimmed}`);
+            const parsed = this.parseDaemonOutput(trimmed);
             if (parsed) {
               this.daemonPorts = parsed;
+              this.stdoutBuffer = '';
               Logger.info(`Daemon ports parsed - daemon: ${parsed.daemon}, token: ${parsed.token}`);
               this.startKeepalive(parsed.daemon, parsed.token);
+              break;
             }
+          }
+        } else {
+          // After ports are parsed, just log without buffering
+          const trimmed = output.trim();
+          if (trimmed) {
+            Logger.debug(`[Server] ${trimmed}`);
           }
         }
       });
@@ -533,6 +552,7 @@ export class ServerManager {
     }
 
     this.daemonPorts = null;
+    this.stdoutBuffer = '';
     this.serverState = ServerState.stopped;
   }
 }
