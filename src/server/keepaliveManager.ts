@@ -88,10 +88,20 @@ export class KeepaliveManager {
    * and all its child processes.
    *
    * Returns a promise that resolves once the message has been sent (or fails).
+   * If the keepalive manager is not started, a temporary socket is created
+   * to send the message (this supports the dispose() fire-and-forget case).
    */
   sendExitMessage(): Promise<void> {
     return new Promise((resolve) => {
+      const isTemporarySocket = !this.socket;
       const socket = this.socket ?? dgram.createSocket('udp4');
+
+      const cleanupAndResolve = () => {
+        if (isTemporarySocket) {
+          try { socket.close(); } catch { /* ignore */ }
+        }
+        resolve();
+      };
 
       try {
         const message = new OSC.Message('/daemon/exit', this.token);
@@ -103,19 +113,12 @@ export class KeepaliveManager {
           } else {
             Logger.info('Sent /daemon/exit message to daemon');
           }
-          // Close the socket if we created it ourselves
-          if (!this.socket) {
-            try { socket.close(); } catch { /* ignore */ }
-          }
-          resolve();
+          cleanupAndResolve();
         });
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : String(err);
         Logger.warn(`Error preparing /daemon/exit message: ${errorMessage}`);
-        if (!this.socket) {
-          try { socket.close(); } catch { /* ignore */ }
-        }
-        resolve();
+        cleanupAndResolve();
       }
     });
   }
