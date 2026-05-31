@@ -5,6 +5,8 @@ import * as path from 'path';
 import * as os from 'os';
 import { Logger } from '../utils/logger';
 import { ConfigurationManager } from '../config/configurationManager';
+import { KeepaliveManager } from './keepaliveManager';
+import treeKill from 'tree-kill';
 
 /**
  * Server state enum
@@ -23,6 +25,23 @@ export enum ServerState {
 const SERVER_STARTUP_WAIT_MS = 2000; // Time to wait for server to initialize
 const SERVER_STOP_TIMEOUT_MS = 5000; // Maximum time to wait for graceful shutdown
 const STOP_CHECK_INTERVAL_MS = 100; // Polling interval for checking server stop
+// Number of fields in daemon stdout: daemon-keep-alive gui-listen-to-server gui-send-to-server scsynth osc-cues tau-api tau-phx token
+const DAEMON_OUTPUT_FIELD_COUNT = 8;
+
+/**
+ * Parsed daemon stdout parameters.
+ * The daemon prints: daemon-keep-alive gui-listen-to-server gui-send-to-server scsynth osc-cues tau-api tau-phx token
+ */
+export interface DaemonPorts {
+  daemonKeepAlive: number;
+  guiListenToServer: number;
+  guiSendToServer: number;
+  scsynth: number;
+  oscCues: number;
+  tauApi: number;
+  tauPhx: number;
+  token: number;
+}
 
 /**
  * Server manager for Sonic Pi server lifecycle management
@@ -32,6 +51,9 @@ export class ServerManager {
   private serverProcess: childProcess.ChildProcess | null = null;
   private serverState: ServerState = ServerState.stopped;
   private statusBarItem: vscode.StatusBarItem | null = null;
+  private keepaliveManager: KeepaliveManager | null = null;
+  private daemonPorts: DaemonPorts | null = null;
+  private stdoutBuffer: string = '';
 
   /**
    * Get singleton instance
@@ -164,11 +186,16 @@ export class ServerManager {
 
       Logger.info('Stopping Sonic Pi server');
 
-      if (this.serverProcess) {
-        // Try graceful shutdown first
-        this.serverProcess.kill('SIGTERM');
+      // Send /daemon/exit OSC message for graceful shutdown of daemon and its children
+      if (this.keepaliveManager) {
+        await this.keepaliveManager.sendExitMessage();
+      }
 
-        // Wait for process to exit
+      // Stop keepalive after sending exit message
+      this.stopKeepalive();
+
+      if (this.serverProcess) {
+        // Wait for process to exit after /daemon/exit message
         await this.waitForServerStop();
 
         // Force kill if still running
@@ -180,6 +207,8 @@ export class ServerManager {
         this.serverProcess = null;
       }
 
+      this.daemonPorts = null;
+      this.stdoutBuffer = '';
       this.serverState = ServerState.stopped;
       this.updateStatusBar();
       Logger.info('Sonic Pi server stopped successfully');
@@ -308,12 +337,38 @@ export class ServerManager {
       return;
     }
 
-    // Handle stdout
+    // Handle stdout - accumulate buffer and parse complete lines
     if (this.serverProcess.stdout) {
+      this.stdoutBuffer = '';
       this.serverProcess.stdout.on('data', (data) => {
-        const output = data.toString().trim();
-        if (output) {
-          Logger.debug(`[Server] ${output}`);
+        const output = data.toString();
+        // Only buffer while we still need to parse daemon ports
+        if (!this.daemonPorts) {
+          this.stdoutBuffer += output;
+          const lines = this.stdoutBuffer.split(/\r?\n/);
+          // Keep the last (possibly incomplete) chunk in the buffer
+          this.stdoutBuffer = lines.pop() ?? '';
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) {
+              continue;
+            }
+            Logger.debug(`[Server] ${trimmed}`);
+            const parsed = this.parseDaemonOutput(trimmed);
+            if (parsed) {
+              this.daemonPorts = parsed;
+              this.stdoutBuffer = '';
+              Logger.info(`Daemon ports parsed - daemon-keep-alive: ${parsed.daemonKeepAlive}, token: ${parsed.token}`);
+              this.startKeepalive(parsed.daemonKeepAlive, parsed.token);
+              break;
+            }
+          }
+        } else {
+          // After ports are parsed, just log without buffering
+          const trimmed = output.trim();
+          if (trimmed) {
+            Logger.debug(`[Server] ${trimmed}`);
+          }
         }
       });
     }
@@ -431,22 +486,84 @@ export class ServerManager {
   }
 
   /**
+   * Parse daemon stdout output to extract port numbers and token.
+   * The daemon prints: daemon gui-listen-to-server gui-send-to-server scsynth osc-cues tau-api token
+   */
+  parseDaemonOutput(output: string): DaemonPorts | null {
+    // The daemon output line contains 8 space-separated integers
+    const lines = output.split('\n');
+    for (const line of lines) {
+      const parts = line.trim().split(/\s+/);
+      if (parts.length === DAEMON_OUTPUT_FIELD_COUNT && parts.every(p => /^-?\d+$/.test(p))) {
+        const values = parts.map(p => parseInt(p, 10));
+        return {
+          daemonKeepAlive: values[0],
+          guiListenToServer: values[1],
+          guiSendToServer: values[2],
+          scsynth: values[3],
+          oscCues: values[4],
+          tauApi: values[5],
+          tauPhx: values[6],
+          token: values[7],
+        };
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Start the keepalive manager to send periodic messages to the daemon.
+   */
+  private startKeepalive(daemonPort: number, token: number): void {
+    this.stopKeepalive();
+    this.keepaliveManager = new KeepaliveManager(daemonPort, token);
+    this.keepaliveManager.start();
+  }
+
+  /**
+   * Stop the keepalive manager.
+   */
+  private stopKeepalive(): void {
+    if (this.keepaliveManager) {
+      this.keepaliveManager.stop();
+      this.keepaliveManager = null;
+    }
+  }
+
+  /**
+   * Get the parsed daemon ports (if available).
+   */
+  getDaemonPorts(): DaemonPorts | null {
+    return this.daemonPorts;
+  }
+
+  /**
    * Dispose server manager
    */
   dispose(): void {
     Logger.info('Disposing server manager');
 
-    if (this.serverProcess) {
-      Logger.info('Cleaning up server process');
-      this.serverProcess.kill('SIGTERM');
-      this.serverProcess = null;
+    this.stopKeepalive();
+
+    // Hard-kill daemon and all its children
+    if (this.serverProcess && this.serverProcess.pid) {
+      Logger.info(`Force killing daemon process tree (PID: ${this.serverProcess.pid})`);
+      treeKill(this.serverProcess.pid, 'SIGKILL', (err) => {
+        if (err) {
+          Logger.warn(`Failed to kill process tree: ${err.message}`);
+        }
+      });
     }
+
+    this.serverProcess = null;
 
     if (this.statusBarItem) {
       this.statusBarItem.dispose();
       this.statusBarItem = null;
     }
 
+    this.daemonPorts = null;
+    this.stdoutBuffer = '';
     this.serverState = ServerState.stopped;
   }
 }
