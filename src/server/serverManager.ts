@@ -338,7 +338,7 @@ export class ServerManager {
       this.stdoutBuffer = '';
       this.serverProcess.stdout.on('data', (data) => {
         this.stdoutBuffer += data.toString();
-        const lines = this.stdoutBuffer.split('\n');
+        const lines = this.stdoutBuffer.split(/\r?\n/);
         // Keep the last (possibly incomplete) chunk in the buffer
         this.stdoutBuffer = lines.pop() ?? '';
         for (const line of lines) {
