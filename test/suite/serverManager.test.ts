@@ -28,15 +28,16 @@ suite('ServerManager Test Suite', () => {
 
   test('parseDaemonOutput should parse valid daemon output', () => {
     const manager = ServerManager.getInstance();
-    const output = '4560 4558 4557 4556 4559 4561 -1234567890';
+    const output = '4560 4558 4557 4556 4559 4561 4562 -1234567890';
     const result = manager.parseDaemonOutput(output);
     assert.ok(result);
-    assert.strictEqual(result!.daemon, 4560);
+    assert.strictEqual(result!.daemonKeepAlive, 4560);
     assert.strictEqual(result!.guiListenToServer, 4558);
     assert.strictEqual(result!.guiSendToServer, 4557);
     assert.strictEqual(result!.scsynth, 4556);
     assert.strictEqual(result!.oscCues, 4559);
     assert.strictEqual(result!.tauApi, 4561);
+    assert.strictEqual(result!.tauPhx, 4562);
     assert.strictEqual(result!.token, -1234567890);
   });
 
@@ -49,10 +50,10 @@ suite('ServerManager Test Suite', () => {
 
   test('parseDaemonOutput should handle multiline output and find ports line', () => {
     const manager = ServerManager.getInstance();
-    const output = 'Some debug info\n4560 4558 4557 4556 4559 4561 42';
+    const output = 'Some debug info\n4560 4558 4557 4556 4559 4561 4562 42';
     const result = manager.parseDaemonOutput(output);
     assert.ok(result);
-    assert.strictEqual(result!.daemon, 4560);
+    assert.strictEqual(result!.daemonKeepAlive, 4560);
     assert.strictEqual(result!.token, 42);
   });
 });

@@ -24,20 +24,21 @@ export enum ServerState {
 const SERVER_STARTUP_WAIT_MS = 2000; // Time to wait for server to initialize
 const SERVER_STOP_TIMEOUT_MS = 5000; // Maximum time to wait for graceful shutdown
 const STOP_CHECK_INTERVAL_MS = 100; // Polling interval for checking server stop
-// Number of fields in daemon stdout: daemon gui-listen-to-server gui-send-to-server scsynth osc-cues tau-api token
-const DAEMON_OUTPUT_FIELD_COUNT = 7;
+// Number of fields in daemon stdout: daemon-keep-alive gui-listen-to-server gui-send-to-server scsynth osc-cues tau-api tau-phx token
+const DAEMON_OUTPUT_FIELD_COUNT = 8;
 
 /**
  * Parsed daemon stdout parameters.
- * The daemon prints: daemon gui-listen-to-server gui-send-to-server scsynth osc-cues tau-api token
+ * The daemon prints: daemon-keep-alive gui-listen-to-server gui-send-to-server scsynth osc-cues tau-api tau-phx token
  */
 export interface DaemonPorts {
-  daemon: number;
+  daemonKeepAlive: number;
   guiListenToServer: number;
   guiSendToServer: number;
   scsynth: number;
   oscCues: number;
   tauApi: number;
+  tauPhx: number;
   token: number;
 }
 
@@ -354,8 +355,8 @@ export class ServerManager {
             if (parsed) {
               this.daemonPorts = parsed;
               this.stdoutBuffer = '';
-              Logger.info(`Daemon ports parsed - daemon: ${parsed.daemon}, token: ${parsed.token}`);
-              this.startKeepalive(parsed.daemon, parsed.token);
+              Logger.info(`Daemon ports parsed - daemon-keep-alive: ${parsed.daemonKeepAlive}, token: ${parsed.token}`);
+              this.startKeepalive(parsed.daemonKeepAlive, parsed.token);
               break;
             }
           }
@@ -486,20 +487,21 @@ export class ServerManager {
    * The daemon prints: daemon gui-listen-to-server gui-send-to-server scsynth osc-cues tau-api token
    */
   parseDaemonOutput(output: string): DaemonPorts | null {
-    // The daemon output line contains 7 space-separated integers
+    // The daemon output line contains 8 space-separated integers
     const lines = output.split('\n');
     for (const line of lines) {
       const parts = line.trim().split(/\s+/);
       if (parts.length === DAEMON_OUTPUT_FIELD_COUNT && parts.every(p => /^-?\d+$/.test(p))) {
         const values = parts.map(p => parseInt(p, 10));
         return {
-          daemon: values[0],
+          daemonKeepAlive: values[0],
           guiListenToServer: values[1],
           guiSendToServer: values[2],
           scsynth: values[3],
           oscCues: values[4],
           tauApi: values[5],
-          token: values[6],
+          tauPhx: values[6],
+          token: values[7],
         };
       }
     }
