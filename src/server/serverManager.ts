@@ -337,24 +337,33 @@ export class ServerManager {
     if (this.serverProcess.stdout) {
       this.stdoutBuffer = '';
       this.serverProcess.stdout.on('data', (data) => {
-        this.stdoutBuffer += data.toString();
-        const lines = this.stdoutBuffer.split(/\r?\n/);
-        // Keep the last (possibly incomplete) chunk in the buffer
-        this.stdoutBuffer = lines.pop() ?? '';
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed) {
-            continue;
-          }
-          Logger.debug(`[Server] ${trimmed}`);
-          // Try to parse daemon ports from stdout if not yet parsed
-          if (!this.daemonPorts) {
+        const output = data.toString();
+        // Only buffer while we still need to parse daemon ports
+        if (!this.daemonPorts) {
+          this.stdoutBuffer += output;
+          const lines = this.stdoutBuffer.split(/\r?\n/);
+          // Keep the last (possibly incomplete) chunk in the buffer
+          this.stdoutBuffer = lines.pop() ?? '';
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) {
+              continue;
+            }
+            Logger.debug(`[Server] ${trimmed}`);
             const parsed = this.parseDaemonOutput(trimmed);
             if (parsed) {
               this.daemonPorts = parsed;
+              this.stdoutBuffer = '';
               Logger.info(`Daemon ports parsed - daemon: ${parsed.daemon}, token: ${parsed.token}`);
               this.startKeepalive(parsed.daemon, parsed.token);
+              break;
             }
+          }
+        } else {
+          // After ports are parsed, just log without buffering
+          const trimmed = output.trim();
+          if (trimmed) {
+            Logger.debug(`[Server] ${trimmed}`);
           }
         }
       });
