@@ -6,6 +6,7 @@ import * as os from 'os';
 import { Logger } from '../utils/logger';
 import { ConfigurationManager } from '../config/configurationManager';
 import { KeepaliveManager } from './keepaliveManager';
+import treeKill from 'tree-kill';
 
 /**
  * Server state enum
@@ -542,15 +543,17 @@ export class ServerManager {
   dispose(): void {
     Logger.info('Disposing server manager');
 
-    // Send /daemon/exit for graceful shutdown (fire-and-forget since dispose is sync).
-    // The daemon will terminate itself and all children upon receiving this message.
-    // As a fallback, stopping keepalive will trigger the daemon's zombie kill switch
-    // (3s timeout) if the exit message was lost.
-    if (this.keepaliveManager) {
-      this.keepaliveManager.sendExitMessage();
-    }
-
     this.stopKeepalive();
+
+    // Hard-kill daemon and all its children
+    if (this.serverProcess && this.serverProcess.pid) {
+      Logger.info(`Force killing daemon process tree (PID: ${this.serverProcess.pid})`);
+      treeKill(this.serverProcess.pid, 'SIGKILL', (err) => {
+        if (err) {
+          Logger.warn(`Failed to kill process tree: ${err.message}`);
+        }
+      });
+    }
 
     this.serverProcess = null;
 
