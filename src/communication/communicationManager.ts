@@ -1,7 +1,9 @@
+import * as vscode from 'vscode';
 import { Logger } from '../utils/logger';
-import { ConfigurationManager } from '../config/configurationManager';
 import { OscClient, OscConnectionState } from './oscClient';
 import { SonicPiProtocol } from './sonicPiProtocol';
+import { ServerMessageHandler } from './serverMessageHandler';
+import { DaemonPorts } from '../server/serverManager';
 
 /**
  * Maximum number of retry attempts for failed sends
@@ -36,6 +38,24 @@ export class CommunicationManager {
   private protocol: SonicPiProtocol | null = null;
   private messageQueue: QueuedMessage[] = [];
   private isProcessingQueue = false;
+  private serverMessageHandler: ServerMessageHandler | null = null;
+  private daemonPorts: DaemonPorts | null = null;
+
+  /**
+   * Initialize the communication manager with daemon ports and output channels
+   * @param daemonPorts Ports discovered from daemon startup
+   * @param logChannel Output channel for server logs
+   * @param cuesChannel Output channel for OSC cues
+   */
+  initialize(daemonPorts: DaemonPorts, logChannel: vscode.OutputChannel, cuesChannel: vscode.OutputChannel): void {
+    this.daemonPorts = daemonPorts;
+
+    // Initialize server message handler
+    this.serverMessageHandler = new ServerMessageHandler(daemonPorts.guiListenToServer);
+    this.serverMessageHandler.setOutputChannels(logChannel, cuesChannel);
+
+    Logger.info(`Communication manager initialized with daemon ports - send: ${daemonPorts.guiSendToServer}, listen: ${daemonPorts.guiListenToServer}`);
+  }
 
   /**
    * Connect to the Sonic Pi server
@@ -46,8 +66,12 @@ export class CommunicationManager {
       return;
     }
 
+    if (!this.daemonPorts) {
+      throw new Error('Communication manager not initialized. Call initialize() first with daemon ports.');
+    }
+
     const host = '127.0.0.1';
-    const port = ConfigurationManager.getServerPort();
+    const port = this.daemonPorts.guiSendToServer;
 
     Logger.info(`Connecting to Sonic Pi server at ${host}:${port}`);
 
@@ -56,6 +80,11 @@ export class CommunicationManager {
 
     try {
       this.oscClient.open();
+
+      // Start the server message handler
+      if (this.serverMessageHandler) {
+        this.serverMessageHandler.start();
+      }
     } catch (error) {
       Logger.error(
         'Failed to connect to Sonic Pi server',
@@ -69,6 +98,11 @@ export class CommunicationManager {
    * Disconnect from the Sonic Pi server
    */
   disconnect(): void {
+    // Stop the server message handler
+    if (this.serverMessageHandler) {
+      this.serverMessageHandler.stop();
+    }
+
     if (this.oscClient) {
       this.oscClient.dispose();
       this.oscClient = null;
@@ -229,6 +263,11 @@ export class CommunicationManager {
    * Dispose the communication manager and free resources
    */
   dispose(): void {
+    if (this.serverMessageHandler) {
+      this.serverMessageHandler.dispose();
+      this.serverMessageHandler = null;
+    }
     this.disconnect();
+    this.daemonPorts = null;
   }
 }

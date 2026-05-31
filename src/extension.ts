@@ -9,6 +9,7 @@ import { CommunicationManager } from './communication';
 
 // Global output channel for logging
 let outputChannel: vscode.OutputChannel;
+let cuesOutputChannel: vscode.OutputChannel;
 let communicationManagerInstance: CommunicationManager | null = null;
 
 /**
@@ -19,6 +20,10 @@ export function activate(context: vscode.ExtensionContext) {
   // Initialize output channel for user feedback
   outputChannel = vscode.window.createOutputChannel('VSCode PSP');
   context.subscriptions.push(outputChannel);
+
+  // Initialize cues output channel for OSC cues
+  cuesOutputChannel = vscode.window.createOutputChannel('VSCode PSP Cues');
+  context.subscriptions.push(cuesOutputChannel);
 
   // Initialize logger with output channel
   Logger.initialize(outputChannel);
@@ -52,7 +57,18 @@ export function activate(context: vscode.ExtensionContext) {
   const startCommand = vscode.commands.registerCommand('vscode-psp.start',
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Start server command invoked');
-      await serverManager.startServer();
+      const started = await serverManager.startServer();
+      
+      if (started) {
+        // Initialize communication manager with daemon ports after server starts
+        const daemonPorts = serverManager.getDaemonPorts();
+        if (daemonPorts) {
+          communicationManager.initialize(daemonPorts, outputChannel, cuesOutputChannel);
+          Logger.info('Communication manager initialized with daemon ports');
+        } else {
+          Logger.warn('Server started but daemon ports not available yet');
+        }
+      }
     }, 'startCommand')
   );
 
@@ -212,5 +228,9 @@ export function deactivate() {
 
   if (outputChannel) {
     outputChannel.dispose();
+  }
+
+  if (cuesOutputChannel) {
+    cuesOutputChannel.dispose();
   }
 }
