@@ -542,18 +542,17 @@ export class ServerManager {
   dispose(): void {
     Logger.info('Disposing server manager');
 
-    // Send /daemon/exit for graceful shutdown (fire-and-forget since dispose is sync)
+    // Send /daemon/exit for graceful shutdown (fire-and-forget since dispose is sync).
+    // The daemon will terminate itself and all children upon receiving this message.
+    // As a fallback, stopping keepalive will trigger the daemon's zombie kill switch
+    // (3s timeout) if the exit message was lost.
     if (this.keepaliveManager) {
       this.keepaliveManager.sendExitMessage();
     }
 
     this.stopKeepalive();
 
-    if (this.serverProcess) {
-      Logger.info('Cleaning up server process');
-      this.serverProcess.kill('SIGTERM');
-      this.serverProcess = null;
-    }
+    this.serverProcess = null;
 
     if (this.statusBarItem) {
       this.statusBarItem.dispose();
