@@ -185,14 +185,16 @@ export class ServerManager {
 
       Logger.info('Stopping Sonic Pi server');
 
-      // Stop keepalive first
+      // Send /daemon/exit OSC message for graceful shutdown of daemon and its children
+      if (this.keepaliveManager) {
+        await this.keepaliveManager.sendExitMessage();
+      }
+
+      // Stop keepalive after sending exit message
       this.stopKeepalive();
 
       if (this.serverProcess) {
-        // Try graceful shutdown first
-        this.serverProcess.kill('SIGTERM');
-
-        // Wait for process to exit
+        // Wait for process to exit after /daemon/exit message
         await this.waitForServerStop();
 
         // Force kill if still running
@@ -539,6 +541,11 @@ export class ServerManager {
    */
   dispose(): void {
     Logger.info('Disposing server manager');
+
+    // Send /daemon/exit for graceful shutdown (fire-and-forget since dispose is sync)
+    if (this.keepaliveManager) {
+      this.keepaliveManager.sendExitMessage();
+    }
 
     this.stopKeepalive();
 
