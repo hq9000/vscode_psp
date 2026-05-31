@@ -6,6 +6,7 @@ import * as os from 'os';
 import { Logger } from '../utils/logger';
 import { ConfigurationManager } from '../config/configurationManager';
 import { KeepaliveManager } from './keepaliveManager';
+import treeKill from 'tree-kill';
 
 /**
  * Server state enum
@@ -185,14 +186,16 @@ export class ServerManager {
 
       Logger.info('Stopping Sonic Pi server');
 
-      // Stop keepalive first
+      // Send /daemon/exit OSC message for graceful shutdown of daemon and its children
+      if (this.keepaliveManager) {
+        await this.keepaliveManager.sendExitMessage();
+      }
+
+      // Stop keepalive after sending exit message
       this.stopKeepalive();
 
       if (this.serverProcess) {
-        // Try graceful shutdown first
-        this.serverProcess.kill('SIGTERM');
-
-        // Wait for process to exit
+        // Wait for process to exit after /daemon/exit message
         await this.waitForServerStop();
 
         // Force kill if still running
@@ -542,11 +545,17 @@ export class ServerManager {
 
     this.stopKeepalive();
 
-    if (this.serverProcess) {
-      Logger.info('Cleaning up server process');
-      this.serverProcess.kill('SIGTERM');
-      this.serverProcess = null;
+    // Hard-kill daemon and all its children
+    if (this.serverProcess && this.serverProcess.pid) {
+      Logger.info(`Force killing daemon process tree (PID: ${this.serverProcess.pid})`);
+      treeKill(this.serverProcess.pid, 'SIGKILL', (err) => {
+        if (err) {
+          Logger.warn(`Failed to kill process tree: ${err.message}`);
+        }
+      });
     }
+
+    this.serverProcess = null;
 
     if (this.statusBarItem) {
       this.statusBarItem.dispose();

@@ -84,6 +84,46 @@ export class KeepaliveManager {
   }
 
   /**
+   * Send a /daemon/exit OSC message to request graceful shutdown of the daemon
+   * and all its child processes.
+   *
+   * Returns a promise that resolves once the message has been sent (or fails).
+   * If the keepalive manager is not started, a temporary socket is created
+   * to send the message (this supports the dispose() fire-and-forget case).
+   */
+  sendExitMessage(): Promise<void> {
+    return new Promise((resolve) => {
+      const isTemporarySocket = !this.socket;
+      const socket = this.socket ?? dgram.createSocket('udp4');
+
+      const cleanupAndResolve = () => {
+        if (isTemporarySocket) {
+          try { socket.close(); } catch { /* ignore */ }
+        }
+        resolve();
+      };
+
+      try {
+        const message = new OSC.Message('/daemon/exit', this.token);
+        const buffer = Buffer.from(message.pack());
+
+        socket.send(buffer, 0, buffer.length, this.daemonPort, '127.0.0.1', (err) => {
+          if (err) {
+            Logger.warn(`Failed to send /daemon/exit: ${err.message}`);
+          } else {
+            Logger.info('Sent /daemon/exit message to daemon');
+          }
+          cleanupAndResolve();
+        });
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        Logger.warn(`Error preparing /daemon/exit message: ${errorMessage}`);
+        cleanupAndResolve();
+      }
+    });
+  }
+
+  /**
    * Send a single /daemon/keep-alive OSC message to the daemon.
    */
   private sendKeepalive(): void {
