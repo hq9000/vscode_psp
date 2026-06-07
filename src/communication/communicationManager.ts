@@ -47,14 +47,20 @@ export class CommunicationManager {
    * @param logChannel Output channel for server logs
    * @param cuesChannel Output channel for OSC cues
    */
-  initialize(daemonPorts: DaemonPorts, logChannel: vscode.OutputChannel, cuesChannel: vscode.OutputChannel): void {
+  initialize(
+    daemonPorts: DaemonPorts,
+    logChannel: vscode.OutputChannel,
+    cuesChannel: vscode.OutputChannel
+  ): void {
     this.daemonPorts = daemonPorts;
 
     // Initialize server message handler
     this.serverMessageHandler = new ServerMessageHandler(daemonPorts.guiListenToServer);
     this.serverMessageHandler.setOutputChannels(logChannel, cuesChannel);
 
-    Logger.info(`Communication manager initialized with daemon ports - send: ${daemonPorts.guiSendToServer}, listen: ${daemonPorts.guiListenToServer}`);
+    Logger.info(
+      `Communication manager initialized with daemon ports - send: ${daemonPorts.guiSendToServer}, listen: ${daemonPorts.guiListenToServer}`
+    );
   }
 
   /**
@@ -67,7 +73,9 @@ export class CommunicationManager {
     }
 
     if (!this.daemonPorts) {
-      throw new Error('Communication manager not initialized. Call initialize() first with daemon ports.');
+      throw new Error(
+        'Communication manager not initialized. Call initialize() first with daemon ports.'
+      );
     }
 
     const host = '127.0.0.1';
@@ -147,13 +155,17 @@ export class CommunicationManager {
   /**
    * Send a message with retry logic
    */
-  private async sendWithRetry(action: 'runCode' | 'stopAllJobs', payload?: string): Promise<boolean> {
+  private async sendWithRetry(
+    action: 'runCode' | 'stopAllJobs',
+    payload?: string
+  ): Promise<boolean> {
     // Ensure we're connected
     if (!this.oscClient || !this.protocol) {
       try {
         this.connect();
       } catch {
         // Queue the message if we can't connect
+        Logger.warn('Vk4fo: Not connected to Sonic Pi server, queuing message');
         this.queueMessage(action, payload);
         return false;
       }
@@ -174,7 +186,9 @@ export class CommunicationManager {
     }
 
     // All retries failed, queue the message
-    Logger.error(`Failed to send ${action} after ${MAX_RETRY_ATTEMPTS} attempts. Connection state: ${this.getConnectionState()}. Ensure Sonic Pi server is running.`);
+    Logger.error(
+      `Failed to send ${action} after ${MAX_RETRY_ATTEMPTS} attempts. Connection state: ${this.getConnectionState()}. Ensure Sonic Pi server is running.`
+    );
     this.queueMessage(action, payload);
     return false;
   }
@@ -256,7 +270,7 @@ export class CommunicationManager {
    * Helper to create a delay
    */
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**

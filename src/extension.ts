@@ -58,7 +58,7 @@ export function activate(context: vscode.ExtensionContext) {
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Start server command invoked');
       const started = await serverManager.startServer();
-      
+
       if (started) {
         // Initialize communication manager with daemon ports after server starts
         const daemonPorts = serverManager.getDaemonPorts();
@@ -190,9 +190,9 @@ export function activate(context: vscode.ExtensionContext) {
       const sent = await communicationManager.sendCode(outputContent);
       if (!sent) {
         vscode.window.showWarningMessage('PSP: Code generated but failed to send to Sonic Pi server');
-        Logger.warn('Failed to send code to Sonic Pi server');
+        Logger.warn('EDi4f: Failed to send code to Sonic Pi server');
       } else {
-        Logger.info('Code sent to Sonic Pi server successfully');
+        Logger.info('GB904f: Code sent to Sonic Pi server successfully');
       }
 
       Logger.info('Script executed and output file read successfully');
