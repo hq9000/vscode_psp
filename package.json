@@ -15,8 +15,8 @@
   "activationEvents": [
     "onLanguage:python",
     "onCommand:vscode-psp.start",
-    "onCommand:vscode-psp.stop",
-    "onCommand:vscode-psp.restart",
+    "onCommand:vscode-psp.stopServer",
+    "onCommand:vscode-psp.restartServer",
     "onCommand:vscode-psp.checkServerStatus",
     "onCommand:vscode-psp.run"
   ],
@@ -28,11 +28,11 @@
         "title": "PSP: Start Sonic Pi Server"
       },
       {
-        "command": "vscode-psp.stop",
+        "command": "vscode-psp.stopServer",
         "title": "PSP: Stop Sonic Pi Server"
       },
       {
-        "command": "vscode-psp.restart",
+        "command": "vscode-psp.restartServer",
         "title": "PSP: Restart Sonic Pi Server"
       },
       {

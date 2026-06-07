@@ -93,7 +93,7 @@ export function activate(context: vscode.ExtensionContext) {
     }, 'startCommand')
   );
 
-  const stopCommand = vscode.commands.registerCommand('vscode-psp.stop',
+  const stopCommand = vscode.commands.registerCommand('vscode-psp.stopServer',
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Stop server command invoked');
       // Send stop command to Sonic Pi via OSC
@@ -102,7 +102,7 @@ export function activate(context: vscode.ExtensionContext) {
     }, 'stopCommand')
   );
 
-  const restartCommand = vscode.commands.registerCommand('vscode-psp.restart',
+  const restartCommand = vscode.commands.registerCommand('vscode-psp.restartServer',
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Restart server command invoked');
       await serverManager.restartServer();

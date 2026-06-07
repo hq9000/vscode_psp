@@ -18,8 +18,8 @@ suite('Extension Test Suite', () => {
   test('Commands should be registered', async () => {
     const commands = await vscode.commands.getCommands(true);
     assert.ok(commands.includes('vscode-psp.start'));
-    assert.ok(commands.includes('vscode-psp.stop'));
-    assert.ok(commands.includes('vscode-psp.restart'));
+    assert.ok(commands.includes('vscode-psp.stopServer'));
+    assert.ok(commands.includes('vscode-psp.restartServer'));
     assert.ok(commands.includes('vscode-psp.checkServerStatus'));
     assert.ok(commands.includes('vscode-psp.run'));
   });
