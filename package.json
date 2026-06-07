@@ -18,7 +18,10 @@
     "onCommand:vscode-psp.stop",
     "onCommand:vscode-psp.restart",
     "onCommand:vscode-psp.checkServerStatus",
-    "onCommand:vscode-psp.run"
+    "onCommand:vscode-psp.run",
+    "onCommand:vscode-psp.showLogs",
+    "onCommand:vscode-psp.showGeneratedCode",
+    "onCommand:vscode-psp.openSettings"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -42,8 +45,46 @@
       {
         "command": "vscode-psp.run",
         "title": "PSP: Run Current File"
+      },
+      {
+        "command": "vscode-psp.showLogs",
+        "title": "PSP: Show Logs"
+      },
+      {
+        "command": "vscode-psp.showGeneratedCode",
+        "title": "PSP: Show Generated Code"
+      },
+      {
+        "command": "vscode-psp.openSettings",
+        "title": "PSP: Open Settings"
       }
     ],
+    "keybindings": [
+      {
+        "command": "vscode-psp.run",
+        "key": "alt+r",
+        "when": "editorLangId == python && resourceExtname == .live.py"
+      },
+      {
+        "command": "vscode-psp.stop",
+        "key": "alt+s",
+        "when": "editorLangId == python"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "vscode-psp.run",
+          "group": "9_cutcopypaste",
+          "when": "resourceExtname == .live.py"
+        },
+        {
+          "command": "vscode-psp.stop",
+          "group": "9_cutcopypaste",
+          "when": "editorLangId == python"
+        }
+      ]
+    },
     "languages": [
       {
         "id": "python",

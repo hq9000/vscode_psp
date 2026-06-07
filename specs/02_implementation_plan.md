@@ -327,10 +327,10 @@ This document outlines the step-by-step implementation plan for building the VSC
 **Goal**: Implement the core "play" functionality
 
 **Tasks**:
-- [ ] Register `vscode-psp.run` command in `package.json`
-- [ ] Bind command to `Alt+R` keybinding
-- [ ] Scope keybinding to `.live.py` files
-- [ ] Implement command handler:
+- [x] Register `vscode-psp.run` command in `package.json`
+- [x] Bind command to `Alt+R` keybinding
+- [x] Scope keybinding to `.live.py` files
+- [x] Implement command handler:
   1. Clear log if `logClearOnRun` is enabled
   2. Display flash effect (if configured)
   3. Execute Python script
@@ -338,8 +338,8 @@ This document outlines the step-by-step implementation plan for building the VSC
   5. Read `last.rb` content
   6. Send code to Sonic Pi server via OSC
   7. Display success/failure notification
-- [ ] Add progress indicator during execution
-- [ ] Handle errors at each step
+- [x] Add progress indicator during execution
+- [x] Handle errors at each step
 
 **Validation**:
 - `Alt+R` triggers Python execution
@@ -352,12 +352,12 @@ This document outlines the step-by-step implementation plan for building the VSC
 **Goal**: Implement audio stop functionality
 
 **Tasks**:
-- [ ] Register `vscode-psp.stop` command in `package.json`
-- [ ] Bind command to `Alt+S` keybinding
-- [ ] Implement command handler:
+- [x] Register `vscode-psp.stop` command in `package.json`
+- [x] Bind command to `Alt+S` keybinding
+- [x] Implement command handler:
   - Send stop message to Sonic Pi server
   - Display confirmation notification
-- [ ] Handle case where server is not running
+- [x] Handle case where server is not running
 
 **Validation**:
 - `Alt+S` stops all audio playback
@@ -368,11 +368,11 @@ This document outlines the step-by-step implementation plan for building the VSC
 **Goal**: Provide supplementary user commands
 
 **Tasks**:
-- [ ] Implement `vscode-psp.showLogs` - Open extension log output
-- [ ] Implement `vscode-psp.showGeneratedCode` - View `last.rb` content
-- [ ] Implement `vscode-psp.openSettings` - Quick access to extension settings
-- [ ] Add commands to Command Palette with proper categories
-- [ ] Consider context menu items for `.live.py` files
+- [x] Implement `vscode-psp.showLogs` - Open extension log output
+- [x] Implement `vscode-psp.showGeneratedCode` - View `last.rb` content
+- [x] Implement `vscode-psp.openSettings` - Quick access to extension settings
+- [x] Add commands to Command Palette with proper categories
+- [x] Consider context menu items for `.live.py` files
 
 **Validation**:
 - All commands are accessible
