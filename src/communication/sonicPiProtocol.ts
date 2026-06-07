@@ -14,16 +14,17 @@ export const sonicPiAddresses = {
  */
 export class SonicPiProtocol {
   private client: OscClient;
-  private guiId: string;
+  private guiId: number;
 
   /**
    * @param client OSC client for sending messages
    * @param daemonToken Authentication token from DaemonPorts used as GUI ID for Sonic Pi commands.
    * This token identifies this client to the Sonic Pi daemon and is required for proper bidirectional communication.
+   * Must be sent as an integer in the OSC message for Sonic Pi daemon to recognize it correctly.
    */
   constructor(client: OscClient, daemonToken: number) {
     this.client = client;
-    this.guiId = String(daemonToken);
+    this.guiId = daemonToken;
   }
 
   /**
