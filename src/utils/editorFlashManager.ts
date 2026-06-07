@@ -18,7 +18,7 @@ export class EditorFlashManager {
     try {
       const editor = targetEditor || vscode.window.activeTextEditor;
       if (!editor) {
-        Logger.debug('No active editor to flash');
+        Logger.debug('No editor available to flash');
         return;
       }
 
