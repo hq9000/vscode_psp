@@ -55,13 +55,25 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Helper function to initialize communication manager with daemon ports
   const initializeCommunicationManager = async () => {
-    const daemonPorts = serverManager.getDaemonPorts();
-    if (daemonPorts) {
-      communicationManager.initialize(daemonPorts, outputChannel, cuesOutputChannel);
-      Logger.info('Communication manager initialized with daemon ports');
-    } else {
-      Logger.warn('Server started but daemon ports not available yet');
+    const maxRetries = 10;
+    const retryDelayMs = 500;
+    
+    for (let i = 0; i < maxRetries; i++) {
+      const daemonPorts = serverManager.getDaemonPorts();
+      if (daemonPorts) {
+        communicationManager.initialize(daemonPorts, outputChannel, cuesOutputChannel);
+        Logger.info('Communication manager initialized with daemon ports');
+        return;
+      }
+      
+      if (i < maxRetries - 1) {
+        Logger.debug(`Daemon ports not available yet, retrying in ${retryDelayMs}ms (attempt ${i + 1}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, retryDelayMs));
+      }
     }
+    
+    Logger.error('Failed to initialize communication manager: daemon ports not available after retries');
+    vscode.window.showWarningMessage('PSP: Communication with Sonic Pi server could not be established');
   };
 
   // Set the server start callback for FileHandler
