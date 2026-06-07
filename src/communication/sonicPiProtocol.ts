@@ -10,21 +10,19 @@ export const sonicPiAddresses = {
 } as const;
 
 /**
- * Default GUI ID used when communicating with Sonic Pi
- * Sonic Pi expects a GUI identifier to track the source of commands
- */
-const DEFAULT_GUI_ID = 'vscode-psp';
-
-/**
  * Implements the Sonic Pi OSC protocol for sending commands
  */
 export class SonicPiProtocol {
   private client: OscClient;
   private guiId: string;
 
-  constructor(client: OscClient, guiId: string = DEFAULT_GUI_ID) {
+  /**
+   * @param client OSC client for sending messages
+   * @param token Token from DaemonPorts to use as GUI ID for Sonic Pi commands
+   */
+  constructor(client: OscClient, token: number) {
     this.client = client;
-    this.guiId = guiId;
+    this.guiId = String(token);
   }
 
   /**
