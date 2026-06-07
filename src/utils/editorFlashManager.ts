@@ -29,11 +29,11 @@ export class EditorFlashManager {
       const flashDecoration = vscode.window.createTextEditorDecorationType({
         backgroundColor: backgroundColor,
         color: textColor,
-        isWholeLine: false,
+        isWholeLine: true,
         rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed
       });
 
-      // Apply decoration to entire document
+      // Apply decoration to entire document content
       const fullRange = new vscode.Range(
         editor.document.positionAt(0),
         editor.document.positionAt(editor.document.getText().length)

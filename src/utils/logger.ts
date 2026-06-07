@@ -31,7 +31,16 @@ export class Logger {
    */
   private static updateLogLevel(): void {
     const configLevel = ConfigurationManager.getLogLevel();
-    Logger.currentLogLevel = LogLevel[configLevel as keyof typeof LogLevel];
+    const logLevelKey = configLevel as keyof typeof LogLevel;
+    
+    // Validate that the config level is a valid LogLevel
+    if (logLevelKey in LogLevel) {
+      Logger.currentLogLevel = LogLevel[logLevelKey];
+    } else {
+      // Fall back to 'info' if invalid configuration
+      Logger.currentLogLevel = LogLevel.info;
+      Logger.warn(`Invalid log level configuration: ${configLevel}, falling back to 'info'`);
+    }
   }
 
   /**
