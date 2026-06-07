@@ -173,9 +173,6 @@ export function activate(context: vscode.ExtensionContext) {
             outputChannel.clear();
           }
 
-          // Display flash effect if configured
-          await FlashEffect.showFlash();
-
           // Detect Python environment if not already done
           if (!pythonEnvironment.getPythonPath()) {
             const detected = await pythonEnvironment.detectPythonPath();
@@ -192,6 +189,9 @@ export function activate(context: vscode.ExtensionContext) {
               return;
             }
           }
+
+          // Display flash effect if configured (after validation)
+          await FlashEffect.showFlash();
 
           // Ensure output directory exists
           outputFileManager.ensureOutputDirectory();

@@ -7,6 +7,8 @@ import { Logger } from './logger';
  */
 export class FlashEffect {
   private static decorationType: vscode.TextEditorDecorationType | null = null;
+  private static lastBgColor: string = '';
+  private static lastTextColor: string = '';
 
   /**
    * Display a flash effect on the editor
@@ -22,13 +24,20 @@ export class FlashEffect {
       const bgColor = ConfigurationManager.getFlashBackgroundColor();
       const textColor = ConfigurationManager.getFlashTextColor();
 
-      // Create decoration type if not exists
-      if (!this.decorationType) {
+      // Recreate decoration type if colors have changed
+      if (bgColor !== this.lastBgColor || textColor !== this.lastTextColor) {
+        if (this.decorationType) {
+          this.decorationType.dispose();
+        }
+
         this.decorationType = vscode.window.createTextEditorDecorationType({
           backgroundColor: bgColor,
           color: textColor,
           isWholeLine: true,
         });
+
+        this.lastBgColor = bgColor;
+        this.lastTextColor = textColor;
       }
 
       // Apply decoration to entire document
@@ -37,7 +46,9 @@ export class FlashEffect {
         editor.document.positionAt(editor.document.getText().length)
       );
 
-      editor.setDecorations(this.decorationType, [range]);
+      if (this.decorationType) {
+        editor.setDecorations(this.decorationType, [range]);
+      }
 
       // Remove decoration after 200ms
       setTimeout(() => {
@@ -58,5 +69,8 @@ export class FlashEffect {
       this.decorationType.dispose();
       this.decorationType = null;
     }
+    this.lastBgColor = '';
+    this.lastTextColor = '';
   }
 }
+

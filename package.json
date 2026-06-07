@@ -75,12 +75,12 @@
       "editor/context": [
         {
           "command": "vscode-psp.run",
-          "group": "9_cutcopypaste",
+          "group": "1_modification",
           "when": "resourceExtname == .live.py"
         },
         {
           "command": "vscode-psp.stop",
-          "group": "9_cutcopypaste",
+          "group": "1_modification",
           "when": "editorLangId == python"
         }
       ]
