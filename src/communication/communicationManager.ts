@@ -82,7 +82,7 @@ export class CommunicationManager {
     const port = this.daemonPorts.guiSendToServer;
     const token = this.daemonPorts.token;
 
-    Logger.info(`Connecting to Sonic Pi server at ${host}:${port} with token ${token}`);
+    Logger.info(`Connecting to Sonic Pi server at ${host}:${port}`);
 
     this.oscClient = new OscClient({ host, sendPort: port });
     this.protocol = new SonicPiProtocol(this.oscClient, token);
