@@ -125,12 +125,12 @@
       {
         "command": "vscode-psp.run",
         "key": "alt+r",
-        "when": "editorLangId == python && resourceExtname == .live.py"
+        "when": "resourceFilename =~ /\\.live\\.py$/"
       },
       {
         "command": "vscode-psp.stop",
         "key": "alt+s",
-        "when": "editorLangId == python && resourceExtname == .live.py"
+        "when": "resourceFilename =~ /\\.live\\.py$/"
       }
     ]
   },
