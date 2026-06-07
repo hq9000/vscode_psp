@@ -329,11 +329,11 @@ This document outlines the step-by-step implementation plan for building the VSC
 vscode-psp.run is already implemented.
 
 **Tasks**:
-- [ ] Register `vscode-psp.run` command in `package.json`
-- [ ] Bind command to `Alt+R` keybinding
-- [ ] Scope keybinding to `.live.py` files
-- [ ] Add progress indicator during execution
-- [ ] Handle errors at each step
+- [x] Register `vscode-psp.run` command in `package.json`
+- [x] Bind command to `Alt+R` keybinding
+- [x] Scope keybinding to `.live.py` files
+- [x] Add progress indicator during execution
+- [x] Handle errors at each step
 
 **Validation**:
 - `Alt+R` triggers Python execution
@@ -346,12 +346,12 @@ vscode-psp.run is already implemented.
 **Goal**: Implement audio stop functionality
 
 **Tasks**:
-- [ ] Register `vscode-psp.stop` command in `package.json`
-- [ ] Bind command to `Alt+S` keybinding
-- [ ] Implement command handler:
+- [x] Register `vscode-psp.stop` command in `package.json`
+- [x] Bind command to `Alt+S` keybinding
+- [x] Implement command handler:
   - Send "/stop-all-jobs" message to Sonic Pi server, this command only expects a token, no other arguments
   - Display confirmation notification
-- [ ] Handle case where server is not running
+- [x] Handle case where server is not running
 
 **Validation**:
 - `Alt+S` stops all audio playback
