@@ -80,12 +80,12 @@ export class CommunicationManager {
 
     const host = '127.0.0.1';
     const port = this.daemonPorts.guiSendToServer;
-    const token = this.daemonPorts.token;
+    const daemonToken = this.daemonPorts.token;
 
     Logger.info(`Connecting to Sonic Pi server at ${host}:${port}`);
 
     this.oscClient = new OscClient({ host, sendPort: port });
-    this.protocol = new SonicPiProtocol(this.oscClient, token);
+    this.protocol = new SonicPiProtocol(this.oscClient, daemonToken);
 
     try {
       this.oscClient.open();

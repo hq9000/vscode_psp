@@ -18,11 +18,12 @@ export class SonicPiProtocol {
 
   /**
    * @param client OSC client for sending messages
-   * @param token Token from DaemonPorts to use as GUI ID for Sonic Pi commands
+   * @param daemonToken Authentication token from DaemonPorts used as GUI ID for Sonic Pi commands.
+   * This token identifies this client to the Sonic Pi daemon and is required for proper bidirectional communication.
    */
-  constructor(client: OscClient, token: number) {
+  constructor(client: OscClient, daemonToken: number) {
     this.client = client;
-    this.guiId = String(token);
+    this.guiId = String(daemonToken);
   }
 
   /**
