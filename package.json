@@ -15,6 +15,7 @@
   "activationEvents": [
     "onLanguage:python",
     "onCommand:vscode-psp.start",
+    "onCommand:vscode-psp.stop",
     "onCommand:vscode-psp.stopServer",
     "onCommand:vscode-psp.restartServer",
     "onCommand:vscode-psp.checkServerStatus",
@@ -42,6 +43,10 @@
       {
         "command": "vscode-psp.run",
         "title": "PSP: Run Current File"
+      },
+      {
+        "command": "vscode-psp.stop",
+        "title": "PSP: Stop All Playback"
       }
     ],
     "languages": [
@@ -115,7 +120,19 @@
           "description": "Text color for flash feedback (CSS color format)"
         }
       }
-    }
+    },
+    "keybindings": [
+      {
+        "command": "vscode-psp.run",
+        "key": "alt+r",
+        "when": "resourceFilename =~ /\\.live\\.py$/"
+      },
+      {
+        "command": "vscode-psp.stop",
+        "key": "alt+s",
+        "when": "resourceFilename =~ /\\.live\\.py$/"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

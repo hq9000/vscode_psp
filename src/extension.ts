@@ -93,13 +93,13 @@ export function activate(context: vscode.ExtensionContext) {
     }, 'startCommand')
   );
 
-  const stopCommand = vscode.commands.registerCommand('vscode-psp.stopServer',
+  const stopServerCommand = vscode.commands.registerCommand('vscode-psp.stopServer',
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Stop server command invoked');
       // Send stop command to Sonic Pi via OSC
       await communicationManager.sendStop();
       await serverManager.stopServer();
-    }, 'stopCommand')
+    }, 'stopServerCommand')
   );
 
   const restartCommand = vscode.commands.registerCommand('vscode-psp.restartServer',
@@ -107,6 +107,27 @@ export function activate(context: vscode.ExtensionContext) {
       Logger.info('Restart server command invoked');
       await serverManager.restartServer();
     }, 'restartCommand')
+  );
+
+  const stopCommand = vscode.commands.registerCommand('vscode-psp.stop',
+    ErrorHandler.wrapAsync(async () => {
+      Logger.info('Stop all playback command invoked');
+       
+      const connectionState = communicationManager.getConnectionState();
+      if (!communicationManager.isConnected()) {
+        vscode.window.showWarningMessage('PSP: Sonic Pi server is not running');
+        return;
+      }
+
+      const sent = await communicationManager.sendStop();
+      if (sent) {
+        vscode.window.showInformationMessage('PSP: All playback stopped');
+        Logger.info('Stop command sent successfully');
+      } else {
+        vscode.window.showWarningMessage('PSP: Failed to send stop command to Sonic Pi server');
+        Logger.warn('Failed to send stop command');
+      }
+    }, 'stopCommand')
   );
 
   const checkStatusCommand = vscode.commands.registerCommand('vscode-psp.checkServerStatus',
@@ -143,86 +164,96 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
 
-      // Save the file before executing
-      if (editor.document.isDirty) {
-        await editor.document.save();
-      }
+      // Show progress indicator while running
+      await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: 'PSP: Running Python script...',
+          cancellable: false
+        },
+        async () => {
+          // Save the file before executing
+          if (editor.document.isDirty) {
+            await editor.document.save();
+          }
 
-      // Clear output if configured
-      if (ConfigurationManager.getLogClearOnRun()) {
-        outputChannel.clear();
-      }
+          // Clear output if configured
+          if (ConfigurationManager.getLogClearOnRun()) {
+            outputChannel.clear();
+          }
 
-      // Detect Python environment if not already done
-      if (!pythonEnvironment.getPythonPath()) {
-        const detected = await pythonEnvironment.detectPythonPath();
-        if (!detected) {
-          vscode.window.showErrorMessage(
-            'PSP: No Python interpreter found. Please configure vscode-psp.pythonPath in settings.'
-          );
-          return;
+          // Detect Python environment if not already done
+          if (!pythonEnvironment.getPythonPath()) {
+            const detected = await pythonEnvironment.detectPythonPath();
+            if (!detected) {
+              vscode.window.showErrorMessage(
+                'PSP: No Python interpreter found. Please configure vscode-psp.pythonPath in settings.'
+              );
+              return;
+            }
+
+            // Validate version
+            const version = await pythonEnvironment.validatePythonVersion(detected);
+            if (!version) {
+              return;
+            }
+          }
+
+          // Ensure output directory exists
+          outputFileManager.ensureOutputDirectory();
+
+          // Execute the script
+          const result = await pythonExecutor.executeScript(filePath);
+
+          // Display output
+          if (result.stdout) {
+            Logger.info(`[Script Output]\n${result.stdout}`);
+          }
+          if (result.stderr) {
+            Logger.warn(`[Script Error]\n${result.stderr}`);
+          }
+
+          if (!result.success) {
+            if (result.timedOut) {
+              vscode.window.showErrorMessage('PSP: Script execution timed out');
+            } else {
+              vscode.window.showErrorMessage(`PSP: Script execution failed (exit code ${result.exitCode})`);
+            }
+            return;
+          }
+
+          // Read the output file
+          const outputContent = await outputFileManager.readOutputFile();
+          if (!outputContent) {
+            vscode.window.showErrorMessage(
+              'PSP: Script executed but no output file (last.rb) was generated'
+            );
+            return;
+          }
+
+          // Validate output content
+          if (!outputFileManager.validateContent(outputContent)) {
+            vscode.window.showWarningMessage('PSP: Output file content may be invalid');
+          }
+
+          // Send the generated Ruby code to Sonic Pi via OSC
+          const sent = await communicationManager.sendCode(outputContent);
+          if (!sent) {
+            vscode.window.showWarningMessage('PSP: Code generated but failed to send to Sonic Pi server');
+            Logger.warn('EDi4f: Failed to send code to Sonic Pi server');
+          } else {
+            Logger.info('GB904f: Code sent to Sonic Pi server successfully');
+          }
+
+          Logger.info('Script executed and output file read successfully');
+          vscode.window.showInformationMessage('PSP: Script executed successfully');
         }
-
-        // Validate version
-        const version = await pythonEnvironment.validatePythonVersion(detected);
-        if (!version) {
-          return;
-        }
-      }
-
-      // Ensure output directory exists
-      outputFileManager.ensureOutputDirectory();
-
-      // Execute the script
-      const result = await pythonExecutor.executeScript(filePath);
-
-      // Display output
-      if (result.stdout) {
-        Logger.info(`[Script Output]\n${result.stdout}`);
-      }
-      if (result.stderr) {
-        Logger.warn(`[Script Error]\n${result.stderr}`);
-      }
-
-      if (!result.success) {
-        if (result.timedOut) {
-          vscode.window.showErrorMessage('PSP: Script execution timed out');
-        } else {
-          vscode.window.showErrorMessage(`PSP: Script execution failed (exit code ${result.exitCode})`);
-        }
-        return;
-      }
-
-      // Read the output file
-      const outputContent = await outputFileManager.readOutputFile();
-      if (!outputContent) {
-        vscode.window.showErrorMessage(
-          'PSP: Script executed but no output file (last.rb) was generated'
-        );
-        return;
-      }
-
-      // Validate output content
-      if (!outputFileManager.validateContent(outputContent)) {
-        vscode.window.showWarningMessage('PSP: Output file content may be invalid');
-      }
-
-      // Send the generated Ruby code to Sonic Pi via OSC
-      const sent = await communicationManager.sendCode(outputContent);
-      if (!sent) {
-        vscode.window.showWarningMessage('PSP: Code generated but failed to send to Sonic Pi server');
-        Logger.warn('EDi4f: Failed to send code to Sonic Pi server');
-      } else {
-        Logger.info('GB904f: Code sent to Sonic Pi server successfully');
-      }
-
-      Logger.info('Script executed and output file read successfully');
-      vscode.window.showInformationMessage('PSP: Script executed successfully');
+      );
     }, 'runCommand')
   );
 
   // Add commands to subscriptions for proper cleanup
-  context.subscriptions.push(startCommand, stopCommand, restartCommand, checkStatusCommand, runCommand);
+  context.subscriptions.push(startCommand, stopServerCommand, stopCommand, restartCommand, checkStatusCommand, runCommand);
 }
 
 /**
