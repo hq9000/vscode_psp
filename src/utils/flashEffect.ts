@@ -50,10 +50,14 @@ export class FlashEffect {
         editor.setDecorations(this.decorationType, [range]);
       }
 
+      // Store the current editor for the timeout callback
+      const currentEditor = editor;
+
       // Remove decoration after 200ms
       setTimeout(() => {
-        if (this.decorationType) {
-          editor.setDecorations(this.decorationType, []);
+        // Only clear decoration if this is still the active editor
+        if (this.decorationType && vscode.window.activeTextEditor === currentEditor) {
+          currentEditor.setDecorations(this.decorationType, []);
         }
       }, 200);
     } catch (error) {

@@ -190,7 +190,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
           }
 
-          // Display flash effect if configured (after validation)
+          // Display flash effect (after validation)
           await FlashEffect.showFlash();
 
           // Ensure output directory exists
