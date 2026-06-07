@@ -7,6 +7,10 @@ import { ServerManager } from './server/serverManager';
 import { PythonEnvironment, PythonExecutor, OutputFileManager } from './python';
 import { CommunicationManager } from './communication';
 
+// Constants for daemon port initialization
+const MAX_DAEMON_PORT_RETRIES = 10;
+const DAEMON_PORT_RETRY_DELAY_MS = 500;
+
 // Global output channel for logging
 let outputChannel: vscode.OutputChannel;
 let cuesOutputChannel: vscode.OutputChannel;
@@ -55,10 +59,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Helper function to initialize communication manager with daemon ports
   const initializeCommunicationManager = async () => {
-    const maxRetries = 10;
-    const retryDelayMs = 500;
-    
-    for (let i = 0; i < maxRetries; i++) {
+    for (let i = 0; i < MAX_DAEMON_PORT_RETRIES; i++) {
       const daemonPorts = serverManager.getDaemonPorts();
       if (daemonPorts) {
         communicationManager.initialize(daemonPorts, outputChannel, cuesOutputChannel);
@@ -66,9 +67,9 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
       
-      if (i < maxRetries - 1) {
-        Logger.debug(`Daemon ports not available yet, retrying in ${retryDelayMs}ms (attempt ${i + 1}/${maxRetries})`);
-        await new Promise(resolve => setTimeout(resolve, retryDelayMs));
+      if (i < MAX_DAEMON_PORT_RETRIES - 1) {
+        Logger.debug(`Daemon ports not available yet, retrying in ${DAEMON_PORT_RETRY_DELAY_MS}ms (attempt ${i + 1}/${MAX_DAEMON_PORT_RETRIES})`);
+        await new Promise(resolve => setTimeout(resolve, DAEMON_PORT_RETRY_DELAY_MS));
       }
     }
     
