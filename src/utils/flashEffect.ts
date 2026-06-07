@@ -42,10 +42,8 @@ export class FlashEffect {
 
       // Apply decoration to entire document
       const range = new vscode.Range(
-        0,
-        0,
-        editor.document.lineCount,
-        0
+        editor.document.positionAt(0),
+        editor.document.positionAt(editor.document.getText().length)
       );
 
       if (this.decorationType) {
