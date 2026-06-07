@@ -44,10 +44,17 @@ export class EditorFlashManager {
       Logger.debug(`Flash effect applied: bg=${backgroundColor}, text=${textColor}`);
 
       // Remove the decoration after flash duration
+      // Keep a reference to verify the editor is still active
+      const activeEditor = editor;
       setTimeout(() => {
-        editor.setDecorations(flashDecoration, []);
+        // Verify the editor is still valid and active before removing decorations
+        if (vscode.window.activeTextEditor === activeEditor) {
+          activeEditor.setDecorations(flashDecoration, []);
+          Logger.debug('Flash effect removed');
+        } else {
+          Logger.debug('Active editor changed, skipping flash effect cleanup');
+        }
         flashDecoration.dispose();
-        Logger.debug('Flash effect removed');
       }, EditorFlashManager.flashDurationMs);
 
     } catch (error) {
