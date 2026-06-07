@@ -39,7 +39,11 @@ export class Logger {
     } else {
       // Fall back to 'info' if invalid configuration
       Logger.currentLogLevel = LogLevel.info;
-      Logger.warn(`Invalid log level configuration: ${configLevel}, falling back to 'info'`);
+      // Use console.warn directly to avoid potential infinite recursion
+      console.warn(`Invalid log level configuration: ${configLevel}, falling back to 'info'`);
+      if (Logger.outputChannel) {
+        Logger.outputChannel.appendLine(`[WARN] Invalid log level configuration: ${configLevel}, falling back to 'info'`);
+      }
     }
   }
 

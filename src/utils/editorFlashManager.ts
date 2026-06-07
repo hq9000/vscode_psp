@@ -34,6 +34,13 @@ export class EditorFlashManager {
       });
 
       // Apply decoration to entire document content
+      // For empty documents, skip the flash effect as there's nothing to highlight
+      if (editor.document.lineCount === 0 || (editor.document.lineCount === 1 && editor.document.lineAt(0).text.length === 0)) {
+        Logger.debug('Skipping flash effect for empty document');
+        flashDecoration.dispose();
+        return;
+      }
+
       // Use lineCount to efficiently get document end without loading all text
       const endPosition = editor.document.lineCount > 0
         ? editor.document.lineAt(editor.document.lineCount - 1).range.end
