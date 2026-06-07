@@ -7,6 +7,10 @@ import { ServerManager } from './server/serverManager';
 import { PythonEnvironment, PythonExecutor, OutputFileManager } from './python';
 import { CommunicationManager } from './communication';
 
+// Constants for daemon port initialization
+const MAX_DAEMON_PORT_RETRIES = 10;
+const DAEMON_PORT_RETRY_DELAY_MS = 500;
+
 // Global output channel for logging
 let outputChannel: vscode.OutputChannel;
 let cuesOutputChannel: vscode.OutputChannel;
@@ -55,13 +59,22 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Helper function to initialize communication manager with daemon ports
   const initializeCommunicationManager = async () => {
-    const daemonPorts = serverManager.getDaemonPorts();
-    if (daemonPorts) {
-      communicationManager.initialize(daemonPorts, outputChannel, cuesOutputChannel);
-      Logger.info('Communication manager initialized with daemon ports');
-    } else {
-      Logger.warn('Server started but daemon ports not available yet');
+    for (let i = 0; i < MAX_DAEMON_PORT_RETRIES; i++) {
+      const daemonPorts = serverManager.getDaemonPorts();
+      if (daemonPorts) {
+        communicationManager.initialize(daemonPorts, outputChannel, cuesOutputChannel);
+        Logger.info('Communication manager initialized with daemon ports');
+        return;
+      }
+      
+      if (i < MAX_DAEMON_PORT_RETRIES - 1) {
+        Logger.debug(`Daemon ports not available yet, retrying in ${DAEMON_PORT_RETRY_DELAY_MS}ms (attempt ${i + 1}/${MAX_DAEMON_PORT_RETRIES})`);
+        await new Promise(resolve => setTimeout(resolve, DAEMON_PORT_RETRY_DELAY_MS));
+      }
     }
+    
+    Logger.error('Failed to initialize communication manager: daemon ports not available after retries');
+    vscode.window.showWarningMessage('PSP: Communication with Sonic Pi server could not be established');
   };
 
   // Set the server start callback for FileHandler
