@@ -264,20 +264,20 @@ This document outlines the step-by-step implementation plan for building the VSC
 **Goal**: Establish communication with Sonic Pi server
 
 **Tasks**:
-- [ ] Create `OscClient` class using `osc-js` library
-- [ ] Initialize OSC client with proper configuration:
+- [x] Create `OscClient` class using `osc-js` library
+- [x] Initialize OSC client with proper configuration:
   - Target host: localhost (127.0.0.1)
   - Target port: from configuration (default 4557)
   - UDP protocol
-- [ ] Implement connection management:
+- [x] Implement connection management:
   - Open connection
   - Close connection
   - Handle connection errors
-- [ ] Implement message sending:
+- [x] Implement message sending:
   - Format messages according to Sonic Pi protocol
   - Send Ruby code to server
   - Send control commands (stop, etc.)
-- [ ] Implement response handling (if applicable)
+- [x] Implement response handling (if applicable)
 
 **Validation**:
 - OSC client connects to Sonic Pi server
@@ -289,14 +289,14 @@ This document outlines the step-by-step implementation plan for building the VSC
 **Goal**: Implement Sonic Pi command protocol
 
 **Tasks**:
-- [ ] Research Sonic Pi OSC message format
-- [ ] Implement message builders:
+- [x] Research Sonic Pi OSC message format
+- [x] Implement message builders:
   - Run code message (`/run-code`)
   - Stop all message (`/stop-all-jobs`)
   - Other control messages as needed
-- [ ] Handle message formatting (OSC data types)
-- [ ] Implement error message parsing (if Sonic Pi sends feedback)
-- [ ] Add logging for sent/received messages
+- [x] Handle message formatting (OSC data types)
+- [x] Implement error message parsing (if Sonic Pi sends feedback)
+- [x] Add logging for sent/received messages
 
 **Validation**:
 - Sent messages conform to Sonic Pi protocol
@@ -308,12 +308,12 @@ This document outlines the step-by-step implementation plan for building the VSC
 **Goal**: Coordinate OSC communication with server lifecycle
 
 **Tasks**:
-- [ ] Create `CommunicationManager` class
-- [ ] Integrate OSC client with server manager
-- [ ] Implement retry logic for failed sends
-- [ ] Add connection health monitoring
-- [ ] Handle server disconnections gracefully
-- [ ] Queue messages if server is temporarily unavailable
+- [x] Create `CommunicationManager` class
+- [x] Integrate OSC client with server manager
+- [x] Implement retry logic for failed sends
+- [x] Add connection health monitoring
+- [x] Handle server disconnections gracefully
+- [x] Queue messages if server is temporarily unavailable
 
 **Validation**:
 - Communication works reliably

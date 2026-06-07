@@ -9,6 +9,14 @@ import { ServerManager } from '../server/serverManager';
 export class FileHandler {
   private static activeFiles: Set<string> = new Set();
   private static fileWatchers: Map<string, vscode.FileSystemWatcher> = new Map();
+  private static serverStartCallback: (() => Promise<void>) | null = null;
+
+  /**
+   * Set a callback to be invoked after the server auto-starts
+   */
+  static setServerStartCallback(callback: () => Promise<void>): void {
+    this.serverStartCallback = callback;
+  }
 
   /**
    * Initialize file handler with event listeners
@@ -52,14 +60,14 @@ export class FileHandler {
     }
 
     const filePath = document.fileName;
-    
+
     if (!this.activeFiles.has(filePath)) {
       Logger.info(`Opened .live.py file: ${filePath}`);
       this.activeFiles.add(filePath);
-      
+
       // Set up file watcher for this file
       this.setupFileWatcher(filePath);
-      
+
       // Notify about file open (can be used to trigger server start)
       // Using void to intentionally ignore the promise
       void this.onFileActivated(filePath);
@@ -75,14 +83,14 @@ export class FileHandler {
     }
 
     const filePath = document.fileName;
-    
+
     if (this.activeFiles.has(filePath)) {
       Logger.info(`Closed .live.py file: ${filePath}`);
       this.activeFiles.delete(filePath);
-      
+
       // Remove file watcher
       this.removeFileWatcher(filePath);
-      
+
       // Notify about file close
       this.onFileDeactivated(filePath);
     }
@@ -94,7 +102,7 @@ export class FileHandler {
   private static setupFileWatcher(filePath: string): void {
     // Create a file watcher for this specific file
     const watcher = vscode.workspace.createFileSystemWatcher(filePath);
-    
+
     watcher.onDidChange(() => {
       Logger.debug(`File changed: ${filePath}`);
     });
@@ -125,26 +133,35 @@ export class FileHandler {
    */
   private static async onFileActivated(filePath: string): Promise<void> {
     Logger.info(`File activated: ${filePath}`);
-    
+
     // Check if auto-start is enabled
     const autoStart = ConfigurationManager.getAutoStartServer();
     if (!autoStart) {
       Logger.info('Auto-start is disabled, skipping server start');
       return;
     }
-    
+
     // Get server manager instance
     const serverManager = ServerManager.getInstance();
-    
+
     // Check if server is already running
     if (serverManager.isRunning()) {
       Logger.info('Server is already running');
       return;
     }
-    
+
     // Start the server
     Logger.info('Auto-starting Sonic Pi server');
-    await serverManager.startServer();
+    const started = await serverManager.startServer();
+
+    // Call the server start callback if the server started successfully
+    if (started && this.serverStartCallback) {
+      try {
+        await this.serverStartCallback();
+      } catch (error) {
+        Logger.error('Error in server start callback', error instanceof Error ? error : undefined);
+      }
+    }
   }
 
   /**
@@ -153,7 +170,7 @@ export class FileHandler {
    */
   private static onFileDeactivated(filePath: string): void {
     Logger.info(`File deactivated: ${filePath}`);
-    
+
     if (this.activeFiles.size === 0) {
       Logger.info('No more .live.py files are active');
       // TODO: Potentially stop server if configured (Phase 3)
