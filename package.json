@@ -63,7 +63,7 @@
       {
         "command": "vscode-psp.run",
         "key": "alt+r",
-        "when": "resourceExtname == .live.py"
+        "when": "resourceExtname == '.live.py'"
       },
       {
         "command": "vscode-psp.stop",
@@ -76,7 +76,7 @@
         {
           "command": "vscode-psp.run",
           "group": "1_modification",
-          "when": "resourceExtname == .live.py"
+          "when": "resourceExtname == '.live.py'"
         },
         {
           "command": "vscode-psp.stop",
