@@ -248,8 +248,8 @@ export function activate(context: vscode.ExtensionContext) {
             Logger.warn('EDi4f: Failed to send code to Sonic Pi server');
           } else {
             Logger.info('GB904f: Code sent to Sonic Pi server successfully');
-            // Apply flash effect on successful code send
-            await EditorFlashManager.flashEditor();
+            // Apply flash effect on successful code send to the .live.py file editor
+            await EditorFlashManager.flashEditor(editor);
           }
 
           Logger.info('Script executed and output file read successfully');

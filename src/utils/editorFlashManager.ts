@@ -10,12 +10,13 @@ export class EditorFlashManager {
   private static readonly flashDurationMs = 150;
 
   /**
-   * Create a flash effect on the active text editor
+   * Create a flash effect on the specified text editor
    * Flash the entire editor with configured colors for visual feedback
+   * @param targetEditor Optional specific editor to flash. If not provided, uses the active editor.
    */
-  static async flashEditor(): Promise<void> {
+  static async flashEditor(targetEditor?: vscode.TextEditor): Promise<void> {
     try {
-      const editor = vscode.window.activeTextEditor;
+      const editor = targetEditor || vscode.window.activeTextEditor;
       if (!editor) {
         Logger.debug('No active editor to flash');
         return;
