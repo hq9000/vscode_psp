@@ -53,6 +53,20 @@ export function activate(context: vscode.ExtensionContext) {
   const communicationManager = new CommunicationManager();
   communicationManagerInstance = communicationManager;
 
+  // Helper function to initialize communication manager with daemon ports
+  const initializeCommunicationManager = async () => {
+    const daemonPorts = serverManager.getDaemonPorts();
+    if (daemonPorts) {
+      communicationManager.initialize(daemonPorts, outputChannel, cuesOutputChannel);
+      Logger.info('Communication manager initialized with daemon ports');
+    } else {
+      Logger.warn('Server started but daemon ports not available yet');
+    }
+  };
+
+  // Set the server start callback for FileHandler
+  FileHandler.setServerStartCallback(initializeCommunicationManager);
+
   // Register commands
   const startCommand = vscode.commands.registerCommand('vscode-psp.start',
     ErrorHandler.wrapAsync(async () => {
@@ -61,13 +75,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       if (started) {
         // Initialize communication manager with daemon ports after server starts
-        const daemonPorts = serverManager.getDaemonPorts();
-        if (daemonPorts) {
-          communicationManager.initialize(daemonPorts, outputChannel, cuesOutputChannel);
-          Logger.info('Communication manager initialized with daemon ports');
-        } else {
-          Logger.warn('Server started but daemon ports not available yet');
-        }
+        await initializeCommunicationManager();
       }
     }, 'startCommand')
   );

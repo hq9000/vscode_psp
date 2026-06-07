@@ -9,6 +9,14 @@ import { ServerManager } from '../server/serverManager';
 export class FileHandler {
   private static activeFiles: Set<string> = new Set();
   private static fileWatchers: Map<string, vscode.FileSystemWatcher> = new Map();
+  private static serverStartCallback: (() => Promise<void>) | null = null;
+
+  /**
+   * Set a callback to be invoked after the server auto-starts
+   */
+  static setServerStartCallback(callback: () => Promise<void>): void {
+    this.serverStartCallback = callback;
+  }
 
   /**
    * Initialize file handler with event listeners
@@ -144,7 +152,12 @@ export class FileHandler {
     
     // Start the server
     Logger.info('Auto-starting Sonic Pi server');
-    await serverManager.startServer();
+    const started = await serverManager.startServer();
+    
+    // Call the server start callback if the server started successfully
+    if (started && this.serverStartCallback) {
+      await this.serverStartCallback();
+    }
   }
 
   /**
