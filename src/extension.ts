@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { Logger } from './utils/logger';
 import { ErrorHandler } from './utils/errorHandler';
+import { EditorFlashManager } from './utils/editorFlashManager';
 import { ConfigurationManager } from './config/configurationManager';
 import { FileHandler } from './files/fileHandler';
 import { ServerManager } from './server/serverManager';
@@ -180,6 +181,10 @@ export function activate(context: vscode.ExtensionContext) {
           // Clear output if configured
           if (ConfigurationManager.getLogClearOnRun()) {
             outputChannel.clear();
+            // Show output channel to enable autoscroll if configured
+            if (ConfigurationManager.getLogAutoscroll()) {
+              Logger.show();
+            }
           }
 
           // Detect Python environment if not already done
@@ -243,6 +248,8 @@ export function activate(context: vscode.ExtensionContext) {
             Logger.warn('EDi4f: Failed to send code to Sonic Pi server');
           } else {
             Logger.info('GB904f: Code sent to Sonic Pi server successfully');
+            // Apply flash effect on successful code send to the .live.py file editor
+            await EditorFlashManager.flashEditor(editor);
           }
 
           Logger.info('Script executed and output file read successfully');

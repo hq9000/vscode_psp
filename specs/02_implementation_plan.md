@@ -419,17 +419,17 @@ vscode-psp.run is already implemented.
 
 **Tasks**:
 
-- [ ] Create dedicated output channel ("VSCode PSP")
-- [ ] Implement logging levels (debug, info, warn, error)
-- [ ] Log key operations:
+- [x] Create dedicated output channel ("VSCode PSP")
+- [x] Implement logging levels (debug, info, warn, error)
+- [x] Log key operations:
   - Extension activation/deactivation
   - Server start/stop events
   - Python script execution
   - OSC message sending
   - Errors and warnings
-- [ ] Implement log autoscroll based on configuration
-- [ ] Implement log clear on run based on configuration
-- [ ] Format log messages for readability
+- [x] Implement log autoscroll based on configuration
+- [x] Implement log clear on run based on configuration
+- [x] Format log messages for readability
 
 **Validation**:
 
@@ -444,7 +444,7 @@ vscode-psp.run is already implemented.
 
 **Tasks**:
 
-- [ ] Implement text editor flash effect on run:
+- [x] Implement text editor flash effect on run:
   - Apply background and text color flash
   - Use colors from configuration
   - Flash duration: ~100-200ms
