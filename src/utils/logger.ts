@@ -116,11 +116,11 @@ export class Logger {
   }
 
   /**
-   * Show the output channel
+   * Show the output channel while preserving editor focus
    */
   static show(): void {
     if (Logger.outputChannel) {
-      Logger.outputChannel.show();
+      Logger.outputChannel.show(true);
     }
   }
 
