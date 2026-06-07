@@ -34,9 +34,13 @@ export class EditorFlashManager {
       });
 
       // Apply decoration to entire document content
+      // Use lineCount to efficiently get document end without loading all text
+      const endPosition = editor.document.lineCount > 0
+        ? editor.document.lineAt(editor.document.lineCount - 1).range.end
+        : new vscode.Position(0, 0);
       const fullRange = new vscode.Range(
         editor.document.positionAt(0),
-        editor.document.positionAt(editor.document.getText().length)
+        endPosition
       );
 
       editor.setDecorations(flashDecoration, [fullRange]);
@@ -51,10 +55,12 @@ export class EditorFlashManager {
         if (vscode.window.activeTextEditor === activeEditor) {
           activeEditor.setDecorations(flashDecoration, []);
           Logger.debug('Flash effect removed');
+          flashDecoration.dispose();
         } else {
           Logger.debug('Active editor changed, skipping flash effect cleanup');
+          // Still dispose the decoration to avoid memory leaks
+          flashDecoration.dispose();
         }
-        flashDecoration.dispose();
       }, EditorFlashManager.flashDurationMs);
 
     } catch (error) {
