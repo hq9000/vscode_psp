@@ -326,18 +326,12 @@ This document outlines the step-by-step implementation plan for building the VSC
 ### 6.1 Run Command (Alt+R)
 **Goal**: Implement the core "play" functionality
 
+vscode-psp.run is already implemented.
+
 **Tasks**:
 - [ ] Register `vscode-psp.run` command in `package.json`
 - [ ] Bind command to `Alt+R` keybinding
 - [ ] Scope keybinding to `.live.py` files
-- [ ] Implement command handler:
-  1. Clear log if `logClearOnRun` is enabled
-  2. Display flash effect (if configured)
-  3. Execute Python script
-  4. Wait for `last.rb` to be written
-  5. Read `last.rb` content
-  6. Send code to Sonic Pi server via OSC
-  7. Display success/failure notification
 - [ ] Add progress indicator during execution
 - [ ] Handle errors at each step
 
@@ -355,7 +349,7 @@ This document outlines the step-by-step implementation plan for building the VSC
 - [ ] Register `vscode-psp.stop` command in `package.json`
 - [ ] Bind command to `Alt+S` keybinding
 - [ ] Implement command handler:
-  - Send stop message to Sonic Pi server
+  - Send "/stop-all-jobs" message to Sonic Pi server, this command only expects a token, no other arguments
   - Display confirmation notification
 - [ ] Handle case where server is not running
 
@@ -363,21 +357,6 @@ This document outlines the step-by-step implementation plan for building the VSC
 - `Alt+S` stops all audio playback
 - Command works even if server was started externally
 - Appropriate message displays if server is not running
-
-### 6.3 Additional Commands
-**Goal**: Provide supplementary user commands
-
-**Tasks**:
-- [ ] Implement `vscode-psp.showLogs` - Open extension log output
-- [ ] Implement `vscode-psp.showGeneratedCode` - View `last.rb` content
-- [ ] Implement `vscode-psp.openSettings` - Quick access to extension settings
-- [ ] Add commands to Command Palette with proper categories
-- [ ] Consider context menu items for `.live.py` files
-
-**Validation**:
-- All commands are accessible
-- Commands perform expected actions
-- Commands handle edge cases
 
 ## Phase 7: User Interface and Feedback
 
