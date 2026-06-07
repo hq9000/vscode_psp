@@ -66,13 +66,13 @@ export function activate(context: vscode.ExtensionContext) {
         Logger.info('Communication manager initialized with daemon ports');
         return;
       }
-      
+
       if (i < MAX_DAEMON_PORT_RETRIES - 1) {
         Logger.debug(`Daemon ports not available yet, retrying in ${DAEMON_PORT_RETRY_DELAY_MS}ms (attempt ${i + 1}/${MAX_DAEMON_PORT_RETRIES})`);
         await new Promise(resolve => setTimeout(resolve, DAEMON_PORT_RETRY_DELAY_MS));
       }
     }
-    
+
     Logger.error('Failed to initialize communication manager: daemon ports not available after retries');
     vscode.window.showWarningMessage('PSP: Communication with Sonic Pi server could not be established');
   };
