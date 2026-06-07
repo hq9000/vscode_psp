@@ -156,7 +156,11 @@ export class FileHandler {
     
     // Call the server start callback if the server started successfully
     if (started && this.serverStartCallback) {
-      await this.serverStartCallback();
+      try {
+        await this.serverStartCallback();
+      } catch (error) {
+        Logger.error('Error in server start callback', error instanceof Error ? error : undefined);
+      }
     }
   }
 
