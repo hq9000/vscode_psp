@@ -94,6 +94,8 @@ Every step should result in a commit with a clear message describing the change.
 
 update the task list in the implementation plan accordingly (in the same commit with the corresponding implementation of the step)
 
+Before starting to implement the first step, ensure that the project compiles, there are no linting errors and all tests are passing. If there are any issues, fix them first before starting to implement the first step -> the fix should go into a dedicated commit.
+
 ## Verification
 
 Before committing, run linting and fix any linting errors.

@@ -129,8 +129,7 @@
       },
       {
         "command": "vscode-psp.stop",
-        "key": "alt+s",
-        "when": "resourceFilename =~ /\\.live\\.py$/"
+        "key": "alt+s"
       }
     ]
   },
