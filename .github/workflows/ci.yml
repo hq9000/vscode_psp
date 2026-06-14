@@ -31,6 +31,6 @@ jobs:
               run: npm run compile-tests && npm run compile
 
             - name: Run Tests
-              run: npm test
+              run: xvfb-run -a npm test
               env:
                   CI: true
