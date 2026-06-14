@@ -71,10 +71,10 @@ suite('Communication Layer Test Suite', () => {
       };
       const logChannel = vscode.window.createOutputChannel('Test Log');
       const cuesChannel = vscode.window.createOutputChannel('Test Cues');
-      
+
       // Should not throw
       manager.initialize(daemonPorts, logChannel, cuesChannel);
-      
+
       logChannel.dispose();
       cuesChannel.dispose();
     });
@@ -93,16 +93,16 @@ suite('Communication Layer Test Suite', () => {
       };
       const logChannel = vscode.window.createOutputChannel('Test Log');
       const cuesChannel = vscode.window.createOutputChannel('Test Cues');
-      
+
       manager.initialize(daemonPorts, logChannel, cuesChannel);
-      
+
       // Should not throw
       manager.setLogSuppression(true);
       assert.strictEqual(true, true); // Basic assertion to verify method exists and doesn't throw
-      
+
       manager.setLogSuppression(false);
       assert.strictEqual(true, true); // Basic assertion to verify method exists and doesn't throw
-      
+
       logChannel.dispose();
       cuesChannel.dispose();
     });
@@ -130,10 +130,10 @@ suite('Communication Layer Test Suite', () => {
       const handler = new ServerMessageHandler(4557);
       const logChannel = vscode.window.createOutputChannel('Test Log');
       const cuesChannel = vscode.window.createOutputChannel('Test Cues');
-      
+
       // Should not throw
       handler.setOutputChannels(logChannel, cuesChannel);
-      
+
       handler.dispose();
       logChannel.dispose();
       cuesChannel.dispose();
@@ -143,15 +143,15 @@ suite('Communication Layer Test Suite', () => {
       const handler = new ServerMessageHandler(4557);
       const logChannel = vscode.window.createOutputChannel('Test Log');
       const cuesChannel = vscode.window.createOutputChannel('Test Cues');
-      
+
       // Should not throw
       handler.setOutputChannels(logChannel, cuesChannel);
       handler.setLogSuppression(true);
       assert.strictEqual(true, true); // Basic assertion to verify method exists and doesn't throw
-      
+
       handler.setLogSuppression(false);
       assert.strictEqual(true, true); // Basic assertion to verify method exists and doesn't throw
-      
+
       handler.dispose();
       logChannel.dispose();
       cuesChannel.dispose();

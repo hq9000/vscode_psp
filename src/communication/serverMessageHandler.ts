@@ -75,7 +75,9 @@ export class ServerMessageHandler {
       try {
         this.osc.close();
       } catch (error) {
-        Logger.warn(`Error closing server message handler: ${error instanceof Error ? error.message : String(error)}`);
+        Logger.warn(
+          `Error closing server message handler: ${error instanceof Error ? error.message : String(error)}`
+        );
       }
       this.osc = null;
       Logger.info('Server message handler stopped');
@@ -133,7 +135,9 @@ export class ServerMessageHandler {
         this.logOutputChannel.appendLine(logMessage);
       }
     } catch (error) {
-      Logger.warn(`Error handling /log/info: ${error instanceof Error ? error.message : String(error)}`);
+      Logger.warn(
+        `Error handling /log/info: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -146,14 +150,16 @@ export class ServerMessageHandler {
       const address = message.args[2];
       const value = message.args[3];
       const cueMessage = `${address}: ${value}`;
-      
+
       Logger.debug(`[Cue] ${cueMessage}`);
-      
+
       if (this.cuesOutputChannel) {
         this.cuesOutputChannel.appendLine(cueMessage);
       }
     } catch (error) {
-      Logger.warn(`Error handling /incoming/osc: ${error instanceof Error ? error.message : String(error)}`);
+      Logger.warn(
+        `Error handling /incoming/osc: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -182,7 +188,7 @@ export class ServerMessageHandler {
         for (let i = 0; i < count; i++) {
           const str = message.args[4 + 1 + 2 * i];
           const lines = str ? str.split(/\r?\n/) : [];
-          
+
           let prefix: string;
           if (!str) {
             prefix = ' |';
@@ -206,7 +212,9 @@ export class ServerMessageHandler {
         }
       }
     } catch (error) {
-      Logger.warn(`Error handling /log/multi_message: ${error instanceof Error ? error.message : String(error)}`);
+      Logger.warn(
+        `Error handling /log/multi_message: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -228,16 +236,20 @@ export class ServerMessageHandler {
       }
 
       // Show error notification
-      void vscode.window.showErrorMessage(
-        `Sonic Pi Syntax Error: ${description}\nLine ${line}: ${errorLine}`,
-        'Show Logs'
-      ).then((item) => {
-        if (item && this.logOutputChannel) {
-          this.logOutputChannel.show();
-        }
-      });
+      void vscode.window
+        .showErrorMessage(
+          `Sonic Pi Syntax Error: ${description}\nLine ${line}: ${errorLine}`,
+          'Show Logs'
+        )
+        .then((item) => {
+          if (item && this.logOutputChannel) {
+            this.logOutputChannel.show();
+          }
+        });
     } catch (error) {
-      Logger.warn(`Error handling /syntax_error: ${error instanceof Error ? error.message : String(error)}`);
+      Logger.warn(
+        `Error handling /syntax_error: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -259,16 +271,17 @@ export class ServerMessageHandler {
       }
 
       // Show error notification
-      void vscode.window.showErrorMessage(
-        `Sonic Pi Error: ${description}`,
-        'Show Logs'
-      ).then((item) => {
-        if (item && this.logOutputChannel) {
-          this.logOutputChannel.show();
-        }
-      });
+      void vscode.window
+        .showErrorMessage(`Sonic Pi Error: ${description}`, 'Show Logs')
+        .then((item) => {
+          if (item && this.logOutputChannel) {
+            this.logOutputChannel.show();
+          }
+        });
     } catch (error) {
-      Logger.warn(`Error handling /error: ${error instanceof Error ? error.message : String(error)}`);
+      Logger.warn(
+        `Error handling /error: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 

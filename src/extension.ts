@@ -281,7 +281,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             Logger.info('Script executed and output file read successfully');
             vscode.window.showInformationMessage('PSP: Script executed successfully');
-            
+
             // Mark run as successful
             runSuccessful = true;
           }
