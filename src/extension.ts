@@ -121,7 +121,7 @@ export function activate(context: vscode.ExtensionContext) {
       await serverManager.restartServer();
     }, 'restartCommand')
   );
-       
+
   const stopCommand = vscode.commands.registerCommand(
     'vscode-psp.stop',
     ErrorHandler.wrapAsync(async () => {
@@ -186,6 +186,7 @@ export function activate(context: vscode.ExtensionContext) {
         isLogSuppressionActive = true;
       }
 
+      let runSuccessful = false;
       try {
         // Show progress indicator while running
         await vscode.window.withProgress(
@@ -280,11 +281,15 @@ export function activate(context: vscode.ExtensionContext) {
 
             Logger.info('Script executed and output file read successfully');
             vscode.window.showInformationMessage('PSP: Script executed successfully');
+            
+            // Mark run as successful
+            runSuccessful = true;
           }
         );
       } finally {
-        // Always restore logs after execution, regardless of success or failure
-        if (isLogSuppressionActive) {
+        // Only restore logs after successful execution
+        // Keep logs suppressed after failed execution so Python errors remain visible
+        if (isLogSuppressionActive && runSuccessful) {
           if (communicationManagerInstance) {
             communicationManagerInstance.setLogSuppression(false);
           }
