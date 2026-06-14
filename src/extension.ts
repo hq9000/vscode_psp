@@ -39,7 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
   const configErrors = ConfigurationManager.validateConfiguration();
   if (configErrors.length > 0) {
     Logger.warn('Configuration validation errors:');
-    configErrors.forEach(error => Logger.warn(`  - ${error}`));
+    configErrors.forEach((error) => Logger.warn(`  - ${error}`));
   }
 
   // Initialize server manager
@@ -69,20 +69,27 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
       if (i < MAX_DAEMON_PORT_RETRIES - 1) {
-        Logger.debug(`Daemon ports not available yet, retrying in ${DAEMON_PORT_RETRY_DELAY_MS}ms (attempt ${i + 1}/${MAX_DAEMON_PORT_RETRIES})`);
-        await new Promise(resolve => setTimeout(resolve, DAEMON_PORT_RETRY_DELAY_MS));
+        Logger.debug(
+          `Daemon ports not available yet, retrying in ${DAEMON_PORT_RETRY_DELAY_MS}ms (attempt ${i + 1}/${MAX_DAEMON_PORT_RETRIES})`
+        );
+        await new Promise((resolve) => setTimeout(resolve, DAEMON_PORT_RETRY_DELAY_MS));
       }
     }
 
-    Logger.error('Failed to initialize communication manager: daemon ports not available after retries');
-    vscode.window.showWarningMessage('PSP: Communication with Sonic Pi server could not be established');
+    Logger.error(
+      'Failed to initialize communication manager: daemon ports not available after retries'
+    );
+    vscode.window.showWarningMessage(
+      'PSP: Communication with Sonic Pi server could not be established'
+    );
   };
 
   // Set the server start callback for FileHandler
   FileHandler.setServerStartCallback(initializeCommunicationManager);
 
   // Register commands
-  const startCommand = vscode.commands.registerCommand('vscode-psp.start',
+  const startCommand = vscode.commands.registerCommand(
+    'vscode-psp.start',
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Start server command invoked');
       const started = await serverManager.startServer();
@@ -94,7 +101,8 @@ export function activate(context: vscode.ExtensionContext) {
     }, 'startCommand')
   );
 
-  const stopServerCommand = vscode.commands.registerCommand('vscode-psp.stopServer',
+  const stopServerCommand = vscode.commands.registerCommand(
+    'vscode-psp.stopServer',
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Stop server command invoked');
       // Send stop command to Sonic Pi via OSC
@@ -103,17 +111,19 @@ export function activate(context: vscode.ExtensionContext) {
     }, 'stopServerCommand')
   );
 
-  const restartCommand = vscode.commands.registerCommand('vscode-psp.restartServer',
+  const restartCommand = vscode.commands.registerCommand(
+    'vscode-psp.restartServer',
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Restart server command invoked');
       await serverManager.restartServer();
     }, 'restartCommand')
   );
-
-  const stopCommand = vscode.commands.registerCommand('vscode-psp.stop',
+       
+  const stopCommand = vscode.commands.registerCommand(
+    'vscode-psp.stop',
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Stop all playback command invoked');
-       
+
       const connectionState = communicationManager.getConnectionState();
       if (!communicationManager.isConnected()) {
         vscode.window.showWarningMessage('PSP: Sonic Pi server is not running');
@@ -131,7 +141,8 @@ export function activate(context: vscode.ExtensionContext) {
     }, 'stopCommand')
   );
 
-  const checkStatusCommand = vscode.commands.registerCommand('vscode-psp.checkServerStatus',
+  const checkStatusCommand = vscode.commands.registerCommand(
+    'vscode-psp.checkServerStatus',
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Check server status command invoked');
       const statusInfo = serverManager.getStatusInfo();
@@ -148,7 +159,8 @@ export function activate(context: vscode.ExtensionContext) {
     }, 'checkStatusCommand')
   );
 
-  const runCommand = vscode.commands.registerCommand('vscode-psp.run',
+  const runCommand = vscode.commands.registerCommand(
+    'vscode-psp.run',
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Run current file command invoked');
 
@@ -170,7 +182,7 @@ export function activate(context: vscode.ExtensionContext) {
         {
           location: vscode.ProgressLocation.Notification,
           title: 'PSP: Running Python script...',
-          cancellable: false
+          cancellable: false,
         },
         async () => {
           // Save the file before executing
@@ -222,7 +234,9 @@ export function activate(context: vscode.ExtensionContext) {
             if (result.timedOut) {
               vscode.window.showErrorMessage('PSP: Script execution timed out');
             } else {
-              vscode.window.showErrorMessage(`PSP: Script execution failed (exit code ${result.exitCode})`);
+              vscode.window.showErrorMessage(
+                `PSP: Script execution failed (exit code ${result.exitCode})`
+              );
             }
             return;
           }
@@ -244,7 +258,9 @@ export function activate(context: vscode.ExtensionContext) {
           // Send the generated Ruby code to Sonic Pi via OSC
           const sent = await communicationManager.sendCode(outputContent);
           if (!sent) {
-            vscode.window.showWarningMessage('PSP: Code generated but failed to send to Sonic Pi server');
+            vscode.window.showWarningMessage(
+              'PSP: Code generated but failed to send to Sonic Pi server'
+            );
             Logger.warn('EDi4f: Failed to send code to Sonic Pi server');
           } else {
             Logger.info('GB904f: Code sent to Sonic Pi server successfully');
@@ -260,7 +276,14 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   // Add commands to subscriptions for proper cleanup
-  context.subscriptions.push(startCommand, stopServerCommand, stopCommand, restartCommand, checkStatusCommand, runCommand);
+  context.subscriptions.push(
+    startCommand,
+    stopServerCommand,
+    stopCommand,
+    restartCommand,
+    checkStatusCommand,
+    runCommand
+  );
 }
 
 /**
