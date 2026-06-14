@@ -11,6 +11,7 @@ export class ServerMessageHandler {
   private listenPort: number;
   private logOutputChannel: vscode.OutputChannel | null = null;
   private cuesOutputChannel: vscode.OutputChannel | null = null;
+  private suppressLogs: boolean = false;
 
   constructor(listenPort: number) {
     this.listenPort = listenPort;
@@ -22,6 +23,15 @@ export class ServerMessageHandler {
   setOutputChannels(logChannel: vscode.OutputChannel, cuesChannel: vscode.OutputChannel): void {
     this.logOutputChannel = logChannel;
     this.cuesOutputChannel = cuesChannel;
+  }
+
+  /**
+   * Set log suppression state
+   * @param suppress Whether to suppress log messages
+   */
+  setLogSuppression(suppress: boolean): void {
+    this.suppressLogs = suppress;
+    Logger.debug(`Log suppression ${suppress ? 'enabled' : 'disabled'}`);
   }
 
   /**
@@ -113,7 +123,12 @@ export class ServerMessageHandler {
     try {
       const logMessage = message.args[1];
       Logger.debug(`[Server] ${logMessage}`);
-      
+
+      // Skip appending if log suppression is enabled
+      if (this.suppressLogs) {
+        return;
+      }
+
       if (this.logOutputChannel) {
         this.logOutputChannel.appendLine(logMessage);
       }
@@ -157,7 +172,10 @@ export class ServerMessageHandler {
         logText += `, thread: ${threadName}`;
       }
       logText += '}';
-
+      // Skip appending if log suppression is enabled
+      if (this.suppressLogs) {
+        return;
+      }
       if (this.logOutputChannel) {
         this.logOutputChannel.appendLine(logText);
 

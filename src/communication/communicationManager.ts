@@ -64,6 +64,16 @@ export class CommunicationManager {
   }
 
   /**
+   * Set log suppression state
+   * @param suppress Whether to suppress log messages
+   */
+  setLogSuppression(suppress: boolean): void {
+    if (this.serverMessageHandler) {
+      this.serverMessageHandler.setLogSuppression(suppress);
+    }
+  }
+
+  /**
    * Connect to the Sonic Pi server
    */
   connect(): void {
