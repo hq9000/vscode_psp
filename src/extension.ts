@@ -20,6 +20,27 @@ let communicationManagerInstance: CommunicationManager | null = null;
 // Log suppression state tracking
 let isLogSuppressionActive: boolean = false;
 
+async function removePlayingFile(): Promise<void> {
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  if (!workspaceFolder) {
+    return;
+  }
+
+  const playingFile = vscode.Uri.joinPath(workspaceFolder.uri, 'playing.json');
+  try {
+    await vscode.workspace.fs.delete(playingFile, { useTrash: false });
+    Logger.info('Removed playing.json from the workspace root');
+  } catch (error) {
+    if (error instanceof vscode.FileSystemError && error.code === 'FileNotFound') {
+      return;
+    }
+
+    Logger.warn(
+      `Failed to remove playing.json: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
+}
+
 /**
  * This method is called when the extension is activated.
  * The extension is activated the very first time a command is executed.
@@ -127,13 +148,14 @@ export function activate(context: vscode.ExtensionContext) {
     ErrorHandler.wrapAsync(async () => {
       Logger.info('Stop all playback command invoked');
 
-      const connectionState = communicationManager.getConnectionState();
       if (!communicationManager.isConnected()) {
+        await removePlayingFile();
         vscode.window.showWarningMessage('PSP: Sonic Pi server is not running');
         return;
       }
 
       const sent = await communicationManager.sendStop();
+      await removePlayingFile();
       if (sent) {
         vscode.window.showInformationMessage('PSP: All playback stopped');
         Logger.info('Stop command sent successfully');
@@ -141,6 +163,8 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showWarningMessage('PSP: Failed to send stop command to Sonic Pi server');
         Logger.warn('Failed to send stop command');
       }
+
+      
     }, 'stopCommand')
   );
 
